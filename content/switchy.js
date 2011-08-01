@@ -64,7 +64,7 @@ function switchy_panelManager(page, newUrlObj) {
 
     // Prioritise this window.
     if (isBrowserWindow && switchy_switchIfURIInWindow(window, URI)) {
-        switchy_panelManagerPage(page, newUrlObj);
+        switchy_panelManagerPageNoWin(page, newUrlObj);
         return;
     }
 
@@ -78,7 +78,7 @@ function switchy_panelManager(page, newUrlObj) {
             continue;
 
         if (switchy_switchIfURIInWindow(browserWin, URI)) {
-            switchy_panelManagerPage(page, newUrlObj);
+            switchy_panelManagerPageNoWin(page, newUrlObj);
             return;
         }
     }
@@ -90,19 +90,30 @@ function switchy_panelManager(page, newUrlObj) {
 
     Services.obs.addObserver(function (aSubject, aTopic, aData) {
         Services.obs.removeObserver(arguments.callee, aTopic);
-        switchy_panelManagerPage(page, newUrlObj);
+        switchy_panelManagerPage(aSubject, page, newUrlObj);
     }, "Switchy-manager-loaded", false);
 }
 
-function switchy_panelManagerPage(page, newUrlObj) {
+function switchy_panelManagerPageNoWin(page, newUrlObj) {
+    function receivePong(aSubject, aTopic, aData) {
+        switchy_panelManagerPage(aSubject, page, newUrlObj);
+    }
+
+    Services.obs.addObserver(receivePong, "Switchy-manager-pong", false);
+    Services.obs.notifyObservers(null, "Switchy-manager-ping", "");
+    Services.obs.removeObserver(receivePong, "Switchy-manager-pong");
+}
+
+function switchy_panelManagerPage(win, page, newUrlObj) {
     if (page == SWITCHY_ADD)
-        switchy_manager_addURL(newUrlObj);
+       win.addURL(newUrlObj);
 
     if (page == SWITCHY_ABOUT)
-        switchy_manager_pageAbout();
+        win.pageAbout();
 
-    if (page == SWITCHY_PROFILES)
-        switchy_manager_pageProfiles();
+    if (page == SWITCHY_PROFILES) {
+        win.pageProfiles();
+}
 }
 
 // This will switch to the tab in aWindow having aURI, if present.

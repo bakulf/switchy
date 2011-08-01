@@ -1,17 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://switchy/skin/manager.css"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:xhtml="http://www.w3.org/1999/xhtml"
-      title="Switchy Manager"
-      role="application"
       onload="switchy_manager_initialize();"
       onunload="switchy_manager_shutdown();"
-      disablefastfind="true"
-      disablechrome="true">
+      id="switchy-page"
+      title="Switchy Manager"
+      role="application"
+      disablechrome="true"
+      disablefastfind="true">
 
-    <script src="switchy.js" />
-    <script src="switchy-manager.js" />
+  <script src="switchy.js" />
+  <script src="switchy-manager.js" />
+
+
+  <xhtml:link rel="shortcut icon"
+              href="chrome://switchy/skin/icon.png" />
+
+  <!-- main header -->
+  <hbox flex="1">
+
+    <!-- category list -->
+    <richlistbox id="categories" persist="last-selected">
+      <richlistitem id="category-add"
+                    class="category"
+                    name="Add new websites"
+                    tooltiptext="Add a new website to profiles"/>
+      <richlistitem id="category-profiles"
+                    class="category"
+                    name="Profiles"
+                    tooltiptext="Manage your profiles"/>
+      <richlistitem id="category-about"
+                    class="category"
+                    name="About"
+                    tooltiptext="About Switchy"/>
+    </richlistbox>
+
+    <box id="view-port-container" flex="1">
+
+      <!-- view port -->
+      <deck id="view-port" flex="1" selectedIndex="0">
+
+        <!-- profile view -->
+        <vbox id="profile-view" flex="1" class="view-pane" align="stretch">
+          <richlistbox id="list-list" class="list" flex="1"/>
+        </vbox>
+
+        <!-- add view -->
+        <vbox id="add-view" flex="1" class="view-pane" align="stretch">
+          <richlistbox id="list-list" class="list" flex="1"/>
+        </vbox>
+
+        <!-- about view -->
+        <vbox id="about-view" flex="1" class="view-pane" align="stretch">
+          <richlistbox id="list-list" class="list" flex="1"/>
+        </vbox>
+
+      </deck>
+
+    </box>
+  </hbox>
 
 </page>
