@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:xhtml="http://www.w3.org/1999/xhtml"
+      title="Switchy Manager"
+      role="application"
+      onload="switchy_manager_initialize();"
+      onunload="switchy_manager_shutdown();"
+      disablefastfind="true"
+      disablechrome="true">
+
+    <script src="switchy.js" />
+    <script src="switchy-manager.js" />
+
+</page>

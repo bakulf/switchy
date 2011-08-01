@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<window class="dialog"
+    title="Choose a profile..."
+    orient="vertical"
+    autostretch="always"
+    onload="switchy_profileListUpdate(); sizeToContent();"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="switchy.js" />
+
+    <listbox id="switchy-list-rows" />
+
+    <hbox>
+        <spacer flex="1"/>
+        <button label="Close" oncommand="window.close();"/>
+    </hbox>
+
+</window>

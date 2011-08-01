@@ -1,0 +1,12 @@
+content	switchy	content/
+skin	switchy	classic/1.0	skin/
+
+overlay	chrome://browser/content/browser.xul	chrome://switchy/content/main.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+
+component {5db0fd9e-3184-4451-b668-744349ab1e9d} components/switchy.js
+contract @baku.switchy/switchyStartup;1 {5db0fd9e-3184-4451-b668-744349ab1e9d}
+category profile-after-change @baku.switchy/switchyStartup;1 @baku.switchy/switchyStartup;1
+
+component {1810dfbe-8d2e-4ce4-bd51-ffd3a5a6da67} components/switchy.js
+contract @baku.switchy/switchy;1 {1810dfbe-8d2e-4ce4-bd51-ffd3a5a6da67}
+category profile-after-change @baku.switchy/switchy;1 @baku.switchy/switchy;1
