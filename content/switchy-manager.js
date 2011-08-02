@@ -60,60 +60,6 @@ var gSwitchyManagerAddUrl = {
         }
     },
 
-    // For progress listener
-    onLocationChange: function(aWebProgress, aRequest, aLocation) { },
-
-    onProgressChange: function() { },
-
-    onSecurityChange: function(aWebProgress, aRequest, aState) { },
-
-    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
-        // Don't care about state but window
-        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)))
-            return;
-
-        // Only when the operation is concluded
-        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
-            return;
-
-        // Disable the alerts:
-        this.disableAlerts();
-
-        // URL:
-        if (this._data) {
-            this._browser.contentDocument.getElementById('add-url').value = this._data.url;
-        } else {
-            this._browser.contentDocument.getElementById('add-url').value = '';
-        }
-
-        // Check the raccomanded value for the type:
-        this._browser.contentDocument.getElementById('add-type-host').checked = true;
-
-        // Populate the list of profiles: 
-        var rows = this._browser.contentDocument.getElementById('profiles-list');
-        rows.innerHTML = ''; // Fastest way to remove all the content
-
-        var switchy = Components.classes['@baku.switchy/switchy;1']
-                                .getService().wrappedJSObject;
-        var profiles = switchy.getProfileNames();
-
-        for (var i = 0; i < profiles.length; ++i) {
-            var row = this._browser.contentDocument.createElement('input');
-            row.setAttribute('type', 'checkbox');
-            row.setAttribute('id', 'profile-' + profiles[i]);
-            rows.appendChild(row);
-
-            var text = this._browser.contentDocument.createTextNode(profiles[i]);
-            rows.appendChild(text);
-        }
-
-        // Connect the button:
-        var me = this;
-        this._browser.contentDocument.getElementById("create").addEventListener("click", function() {
-            me.createClicked();
-        }, false);
-    },
-
     createClicked: function() {
         var switchy = Components.classes['@baku.switchy/switchy;1']
                                 .getService().wrappedJSObject;
@@ -143,6 +89,8 @@ var gSwitchyManagerAddUrl = {
                 listProfiles.push(profiles[i]);
         }
 
+        var onStartup = this._browser.contentDocument.getElementById('on-startup').checked;
+
         // Disable the alerts:
         this.disableAlerts();
 
@@ -169,14 +117,14 @@ var gSwitchyManagerAddUrl = {
         }
 
         // Adding
-        switchy.addURL(url, type, listProfiles);
+        switchy.addURL(url, type, listProfiles, onStartup);
 
         // Change Page:
-        gSwitchyManager.pageProfiles();
+        gSwitchyManager.pageProfiles(true);
     },
 
     disableAlerts: function() {
-        alerts = [ 'alert-url', 'alert-type', 'alert-profiles' ];
+        var alerts = [ 'alert-url', 'alert-type', 'alert-profiles' ];
         for (var i = 0; i < alerts.length; ++i) {
             this._browser.contentDocument.getElementById(alerts[i]).hidden = true;
         }
@@ -184,6 +132,63 @@ var gSwitchyManagerAddUrl = {
 
     showAlert: function(str) {
         this._browser.contentDocument.getElementById(str).hidden = false;
+    },
+
+    // For progress listener
+    onLocationChange: function(aWebProgress, aRequest, aLocation) { },
+
+    onProgressChange: function() { },
+
+    onSecurityChange: function(aWebProgress, aRequest, aState) { },
+
+    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+        // Don't care about state but window
+        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)))
+            return;
+
+        // Only when the operation is concluded
+        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
+            return;
+
+        // Disable the alerts:
+        this.disableAlerts();
+
+        // URL:
+        if (this._data) {
+            this._browser.contentDocument.getElementById('add-url').value = this._data.url;
+        } else {
+            this._browser.contentDocument.getElementById('add-url').value = '';
+        }
+
+        // Check the raccomanded value for the type:
+        this._browser.contentDocument.getElementById('add-type-host').checked = true;
+
+        // Populate the list of profiles:
+        var rows = this._browser.contentDocument.getElementById('profiles-list');
+        rows.innerHTML = ''; // Fastest way to remove all the content
+
+        var switchy = Components.classes['@baku.switchy/switchy;1']
+                                .getService().wrappedJSObject;
+        var profiles = switchy.getProfileNames();
+
+        for (var i = 0; i < profiles.length; ++i) {
+            var row = this._browser.contentDocument.createElement('input');
+            row.setAttribute('type', 'checkbox');
+            row.setAttribute('id', 'profile-' + profiles[i]);
+            rows.appendChild(row);
+
+            var text = this._browser.contentDocument.createTextNode(profiles[i]);
+            rows.appendChild(text);
+        }
+
+        // Default value for the 'on startup'
+        this._browser.contentDocument.getElementById('on-startup').checked = false;
+
+        // Connect the button:
+        var me = this;
+        this._browser.contentDocument.getElementById("create").addEventListener("click", function() {
+            me.createClicked();
+        }, false);
     },
 
     onStatusChange: function() { },
@@ -195,23 +200,56 @@ var gSwitchyManagerAddUrl = {
 // Object for the 'profiles list' view:
 var gSwitchyManagerProfiles = {
     _browser: null,
+    _newURL: false,
 
     initialize: function() {
         this._browser = document.getElementById('profiles-browser');
+        this._browser.addProgressListener(this, Components.interfaces.nsIWebProgress.NOTIFY_ALL |
+                                                Components.interfaces.nsIWebProgress.NOTIFY_STATE_ALL);
     },
 
     shutdown: function() {
     },
 
     show: function() {
-        // TODO
         this._browser.loadURIWithFlags('chrome://switchy/content/manager/profiles.html',
                                        Components.interfaces.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY);
     },
 
     setData: function(args) {
-        // No data for the profiles list
-    }
+        try {
+            this._newURL = args[0];
+        } catch(e) { }
+    },
+
+    // For progress listener
+    onLocationChange: function(aWebProgress, aRequest, aLocation) { },
+
+    onProgressChange: function() { },
+
+    onSecurityChange: function(aWebProgress, aRequest, aState) { },
+
+    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+        // Don't care about state but window
+        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)))
+            return;
+
+        // Only when the operation is concluded
+        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
+            return;
+
+        if (this._newURL) {
+            this.newURL = false;
+            // TODO : show the alert
+        }
+
+        // TODO: update the UI
+    },
+
+    onStatusChange: function() { },
+
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIWebProgressListener,
+                                           Components.interfaces.nsISupportsWeakReference])
 }
 
 // Object for the 'about' view:

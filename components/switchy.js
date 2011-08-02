@@ -61,13 +61,14 @@ const SWITCHY_TYPE_DOMAIN   = 4
 const SWITCHY_TYPE_UNKNOWN = -1
 
 // Object for the URL assigned to any profile
-function SwitchyUrl(url, type) {
-    this.initialize(url, type);
+function SwitchyUrl(url, type, startup) {
+    this.initialize(url, type, startup);
 }
 SwitchyUrl.prototype = {
     _url: null,
-
     _type: null,
+    _startup: false,
+
     _matchFunction: null,
 
     _tldService: null,
@@ -79,7 +80,7 @@ SwitchyUrl.prototype = {
               { type: SWITCHY_TYPE_DOMAIN,   match: 'matchDomain'   } ],
 
     // Initialize, just store the URI + the right match function:
-    initialize: function(url, type) {
+    initialize: function(url, type, startup) {
         this._url = Services.io.newURI(url, null, null);
 
         for (var i = 0; i < this._types.length; ++i) {
@@ -95,6 +96,16 @@ SwitchyUrl.prototype = {
             this._type = SWITCHY_TYPE_UNKNOWN;
             this._matchFunction = function(url) { return false; }
         }
+
+        this._startup = startup;
+    },
+
+    url: function() {
+        return this._url;
+    },
+
+    startup: function() {
+        return this._startup;
     },
 
     // Match this URL?
@@ -166,11 +177,12 @@ const Switchy = {
     // Queries:
     _createTableSQL: '' +
         'CREATE TABLE IF NOT EXISTS data (' +
-        '  url char(255),                 ' +
-        '  type integer,                  ' +
-        '  profile char(255)              ' +
+        '  url     char(255),             ' +
+        '  type    integer,               ' +
+        '  profile char(255),             ' +
+        '  startup boolean                ' +
         ')',
-    _insertQuerySQL: 'INSERT INTO data(url, type, profile) VALUES(:url, :type, :profile)',
+    _insertQuerySQL: 'INSERT INTO data(url, type, profile, startup) VALUES(:url, :type, :profile, :startup)',
     _selectQuerySQL: 'SELECT * FROM data',
 
     init: function() {
@@ -217,20 +229,34 @@ const Switchy = {
         if (!this._switchyUtils)
             return;
 
-        var env = Components.classes["@mozilla.org/process/environment;1"]
-                            .getService(Components.interfaces.nsIEnvironment);
-        var url = env.get('SWITCHY_URL');
-        if (!url || url == "")
-            return;
-
-        env.set('SWITCHY_URL', '');
-
         var win = this.getMostRecentBrowserWindow();
         if (!win)
             return;
 
-        url = Services.io.newURI(url, null, null);
-        this._switchyUtils.openUrl(win, url);
+        // Default URL for this profile:
+        if (this._cache[this.currentProfile()]) {
+            for (var i = 0; i < this._cache[this.currentProfile()].length; ++i) {
+                this._switchyUtils.openUrl(win, this._cache[this.currentProfile()][i].url());
+            }
+        }
+
+        // Url from the environment:
+        var env = Components.classes["@mozilla.org/process/environment;1"]
+                            .getService(Components.interfaces.nsIEnvironment);
+        var url = env.get('SWITCHY_URL');
+
+        if (url && url != "") {
+            env.set('SWITCHY_URL', '');
+
+            try {
+                url = Services.io.newURI(url, null, null);
+            } catch(e) {
+                url = null;
+            }
+
+            if (url)
+                this._switchyUtils.openUrl(win, url);
+        }
     },
 
     getMostRecentBrowserWindow: function() {
@@ -314,7 +340,8 @@ const Switchy = {
                     var profile = row.getResultByName('profile');
 
                     var url = new SwitchyUrl(row.getResultByName('url'),
-                                             row.getResultByName('type'));
+                                             row.getResultByName('type'),
+                                             row.getResultByName('startup'));
 
                     if (!(profile in me._cache))
                         me._cache[profile] = [];
@@ -423,7 +450,7 @@ const Switchy = {
         return 'This website is configured to run in the profile "' + profiles[0] + '". Do you want to switch?';
     },
 
-    addURL: function(url, type, profiles) {
+    addURL: function(url, type, profiles, onStartup) {
         var stmt = this._db.createStatement(this._insertQuerySQL);
         var params = stmt.newBindingParamsArray();
 
@@ -432,6 +459,7 @@ const Switchy = {
             bp.bindByName('url',     url.spec);
             bp.bindByName('type',    this.typeFromString(type));
             bp.bindByName('profile', profiles[i]);
+            bp.bindByName('startup', onStartup);
             params.addParams(bp);
 
             this.addURLToProfile(profiles[i], new SwitchyUrl(url.spec, this.typeFromString(type)));
