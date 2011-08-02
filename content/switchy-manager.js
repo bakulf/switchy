@@ -35,10 +35,18 @@ function pageProfiles() {
 // Object for the 'add URL' view:
 var gSwitchyManagerAddUrl = {
     _data: null,
+    _browser: null,
+
+    initialize: function() {
+        this._browser = document.getElementById('add-browser');
+    },
+
+    shutdown: function() {
+    },
 
     show: function() {
-        dump('URL: ' + this._data.url + '\n');
-        // TODO
+        this._browser.loadURIWithFlags('chrome://switchy/content/manager/add.html',
+                                       Components.interfaces.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY);
     },
 
     setData: function(args) {
@@ -52,9 +60,18 @@ var gSwitchyManagerAddUrl = {
 
 // Object for the 'profiles list' view:
 var gSwitchyManagerProfiles = {
+    _browser: null,
+
+    initialize: function() {
+        this._browser = document.getElementById('profiles-browser');
+    },
+
+    shutdown: function() {
+    },
+
     show: function() {
-        dump('p\n');
-        // TODO
+        this._browser.loadURIWithFlags('chrome://switchy/content/manager/profiles.html',
+                                       Components.interfaces.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY);
     },
 
     setData: function(args) {
@@ -64,9 +81,18 @@ var gSwitchyManagerProfiles = {
 
 // Object for the 'about' view:
 var gSwitchyManagerAbout = {
+    _browser: null,
+
+    initialize: function() {
+        this._browser = document.getElementById('about-browser');
+    },
+
+    shutdown: function() {
+    },
+
     show: function() {
-        dump('aa\n');
-        // TODO
+        this._browser.loadURIWithFlags('chrome://switchy/content/manager/about.html',
+                                       Components.interfaces.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY);
     },
 
     setData: function(args) {
@@ -84,6 +110,11 @@ var gSwitchyManager = {
     initialize: function() {
         this._node = document.getElementById("categories");
 
+        // Initialization of any object:
+        for (var i = 0; i < this._pages.length; ++i)
+            this._pages[i].obj.initialize();
+
+        // Event listener:
         var me = this;
         this._node.addEventListener("select", function() {
             for (var i = 0; i < me._pages.length; ++i) {
@@ -96,10 +127,17 @@ var gSwitchyManager = {
             }
         }, false);
 
+        // Select a view:
+        this._node.selectItem(document.getElementById(this._pages[0].id));
+
+        // Send a message about the loading completed
         Services.obs.notifyObservers(window, "Switchy-manager-loaded", "");
     },
 
     shutdown: function() {
+        // Shutdown any object:
+        for (var i = 0; i < this._pages.length; ++i)
+            this._pages[i].obj.shutdown();
     },
 
     __noSuchMethod__: function(id, args) {
