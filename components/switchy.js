@@ -331,8 +331,6 @@ const Switchy = {
 
     checkURL: function(evnt, win) {
         var page = evnt.originalTarget;
-        if (!page)
-            return;
 
         try {
             var url = page.location.href;
