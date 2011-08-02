@@ -191,6 +191,8 @@ const Switchy = {
         // Table creation:
         this._db.executeSimpleSQL(this._createTableSQL);
         this.populateCache();
+
+        // TODO: check the SWITCHY_URL env variable
     },
 
     shutdown: function() {
@@ -214,15 +216,15 @@ const Switchy = {
         return names;
     },
 
-    changeProfiles: function (profileArray, win) {
+    changeProfiles: function (url, profileArray, win) {
         if (profileArray.length == 1)
-            return this.changeProfile(profileArray[0]);
+            return this.changeProfile(profileArray[0], url);
 
         win.openDialog('chrome://switchy/content/profiles.xul', 'Choose a profile',
-                       'chrome,dialog,centerscreen', profileArray);
+                       'chrome,dialog,centerscreen', { profiles: profileArray, url: url } );
     },
 
-    changeProfile: function(profileName) {
+    changeProfile: function(profileName, url) {
         var env = Components.classes["@mozilla.org/process/environment;1"]
                             .getService(Components.interfaces.nsIEnvironment);
 
@@ -237,6 +239,10 @@ const Switchy = {
         env.set('MOZ_NO_REMOTE', '1');
         env.set('XRE_PROFILE_PATH', profile.rootDir.path);
         env.set('XRE_PROFILE_LOCAL_PATH', profile.localDir.path);
+
+        if (url) {
+            env.set('SWITCHY_URL', url);
+        }
 
         var _appStartup = Components.classes['@mozilla.org/toolkit/app-startup;1']
                                     .getService(Components.interfaces.nsIAppStartup);
@@ -334,7 +340,7 @@ const Switchy = {
                 accessKey: "C",
                 popup:     null,
                 callback:  function(notificationBar, button) {
-                    me.changeProfiles(profiles, win);
+                    me.changeProfiles(url, profiles, win);
                 }
             }
         ];

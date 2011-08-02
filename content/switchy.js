@@ -145,18 +145,27 @@ function switchy_isTabEmpty(aTab) {
 
 // Update the panel for the dialog:
 function switchy_profileListUpdate() {
-    var profiles = window.arguments[0];
+    var data = window.arguments[0];
 
     var rows = document.getElementById('switchy-list-rows');
 
-    for (var i = 0; i < profiles.length; ++i) {
+    for (var i = 0; i < data.profiles.length; ++i) {
         var row = document.createElement('listitem');
-        row.setAttribute('label', profiles[i]);
-        row.setAttribute('onclick', 'switchy_panelSelected(this);');
+        row.setAttribute('label', data.profiles[i]);
+        row.setAttribute('onclick', 'switchy_profileListSelected(this);');
         rows.appendChild(row);
     }
 
-    rows.setAttribute('rows', profiles.length);
+    rows.setAttribute('rows', obj.profiles.length);
+}
+
+// callback when a profile is chosen
+function switchy_profileListSelected(obj) {
+    var data = window.arguments[0];
+
+    var switchy = Components.classes['@baku.switchy/switchy;1']
+                            .getService().wrappedJSObject;
+    switchy.changeProfile(obj.label, data.url);
 }
 
 // Open the about:
