@@ -1,3 +1,4 @@
+// Initializer
 function switchy_manager_initialize() {
     Services.obs.addObserver(switchy_sendPong, "Switchy-manager-ping", false);
     switchy_managerLoad();
@@ -5,15 +6,18 @@ function switchy_manager_initialize() {
     gSwitchyManager.initialize();
 }
 
+// Shutdown
 function switchy_manager_shutdown() {
     Services.obs.removeObserver(switchy_sendPong, "Switchy-manager-ping");
     gSwitchyManager.shutdown();
 }
 
+// Send a ping to inform when the UI is ready:
 function switchy_sendPong(aSubject, aTopic, aData) {
     Services.obs.notifyObservers(window, "Switchy-manager-pong", "");
 }
 
+// functions useful for the views
 function addURL(obj) {
     gSwitchyManager.addURL(obj);
 }
@@ -26,11 +30,35 @@ function pageProfiles() {
     gSwitchyManager.pageProfiles();
 }
 
+// Objects -------------------------------------------------------------------
+
+var gSwitchyManagerAddUrl = {
+    show: function() {
+        dump('a\n');
+        // TODO
+    }
+}
+
+var gSwitchyManagerProfiles = {
+    show: function() {
+        dump('p\n');
+        // TODO
+    }
+}
+
+var gSwitchyManagerAbout = {
+    show: function() {
+        dump('aa\n');
+        // TODO
+    }
+}
+
+// Main object for the manager (it's just a proxy for the single page objects)
 var gSwitchyManager = {
     _node: null,
-    _pages: [ { funcName: 'addURL',       id: 'category-add',      func: 'refreshAdd',      page_id: 'add-view'     },
-              { funcName: 'pageProfiles', id: 'category-profiles', func: 'refreshProfiles', page_id: 'profile-view' },
-              { funcName: 'pageAbout',    id: 'category-about',    func: 'refreshAbout',    page_id: 'about-view'   } ],
+    _pages: [ { funcName: 'addURL',       id: 'category-add',      page_id: 'add-view',      obj: gSwitchyManagerAddUrl   },
+              { funcName: 'pageProfiles', id: 'category-profiles', page_id: 'profiles-view', obj: gSwitchyManagerProfiles },
+              { funcName: 'pageAbout',    id: 'category-about',    page_id: 'about-view',    obj: gSwitchyManagerAbout    } ],
 
     initialize: function() {
         this._node = document.getElementById("categories");
@@ -40,7 +68,7 @@ var gSwitchyManager = {
             for (var i = 0; i < me._pages.length; ++i) {
                 if (me._pages[i].id == me._node.selectedItem.id) {
                     document.getElementById(me._pages[i].page_id).hidden = false;
-                    me[me._pages[i].func]();
+                    me._pages[i].obj.show();
                 } else {
                     document.getElementById(me._pages[i].page_id).hidden = true;
                 }
@@ -60,19 +88,5 @@ var gSwitchyManager = {
                 break;
             }
         }
-    },
-
-    // Functions -------------------------------------------------------------
-
-    refreshAdd: function(args) {
-        // TODO
-    },
-
-    refreshAbout: function(args) {
-        // TODO
-    },
-
-    refreshProfiles: function(args) {
-        // TODO
     }
 };

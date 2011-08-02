@@ -12,7 +12,7 @@ window.addEventListener("load", function() {
     var appcontent = document.getElementById("appcontent");
     if(appcontent) {
         appcontent.addEventListener("DOMContentLoaded", function(evnt) {
-            switchy.checkWebsite(evnt, window);
+            switchy.checkURL(evnt, window);
         }, true);
     }
 }, false);

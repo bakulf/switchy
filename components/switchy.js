@@ -74,11 +74,11 @@ const Switchy = {
 
     // Queries:
     _createTableSQL: '' +
-        'CREATE TABLE IF NOT EXISTS websites (' +
-        '  website char(255),                 ' +
-        '  profile char(255)                  ' +
+        'CREATE TABLE IF NOT EXISTS data (' +
+        '  url char(255),                 ' +
+        '  profile char(255)              ' +
         ')',
-    _selectQuerySQL: 'SELECT * FROM websites',
+    _selectQuerySQL: 'SELECT * FROM data',
 
     init: function() {
         if (this._initialized)
@@ -163,12 +163,12 @@ const Switchy = {
                      row;
                      row = aResultSet.getNextRow()) {
                     var profile = row.getResultByName('profile');
-                    var website = row.getResultByName('website');
+                    var url     = row.getResultByName('url');
 
                     if (!(profile in me._cache))
                         me._cache[profile] = [];
 
-                    me._cache[profile].push(website);
+                    me._cache[profile].push(url);
                 }
             },
 
@@ -178,7 +178,7 @@ const Switchy = {
         });
     },
 
-    checkWebsite: function(evnt, win) {
+    checkURL: function(evnt, win) {
         var page = evnt.originalTarget;
         if (!page)
             return;
@@ -195,11 +195,11 @@ const Switchy = {
         // List of profile matching this URI:
         var profiles = this.matchProfiles(URI);
 
-        // Unknown website:
+        // Unknown URL:
         if (profiles.length == 0)
             return;
 
-        // This website is supported by the current profile:
+        // This URL is supported by the current profile:
         if (profiles.indexOf(this._profileService.selectedProfile.name) != -1)
             return;
 

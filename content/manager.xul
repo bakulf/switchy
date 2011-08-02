@@ -45,7 +45,7 @@
       <deck id="view-port" flex="1" selectedIndex="0">
 
         <!-- profile view -->
-        <vbox id="profile-view" flex="1" class="view-pane" align="stretch">
+        <vbox id="profiles-view" flex="1" class="view-pane" align="stretch">
           <richlistbox id="list-list" class="list" flex="1"/>
         </vbox>
 
