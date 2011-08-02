@@ -53,6 +53,97 @@ SwitchyInitializer.prototype = {
     }
 };
 
+// Const for the type of URL supported
+const SWITCHY_TYPE_COMPLETE = 1
+const SWITCHY_TYPE_PATH     = 2
+const SWITCHY_TYPE_HOST     = 3
+const SWITCHY_TYPE_DOMAIN   = 4
+const SWITCHY_TYPE_UNKNOWN = -1
+
+// Object for the URL assigned to any profile
+function SwitchyUrl(url, type) {
+    this.initialize(url, type);
+}
+SwitchyUrl.prototype = {
+    _url: null,
+
+    _type: null,
+    _matchFunction: null,
+
+    _tldService: null,
+    _baseDomain: null,
+
+    _types: [ { type: SWITCHY_TYPE_COMPLETE, match: 'matchComplete' },
+              { type: SWITCHY_TYPE_PATH,     match: 'matchPath'     },
+              { type: SWITCHY_TYPE_HOST,     match: 'matchHost'     },
+              { type: SWITCHY_TYPE_DOMAIN,   match: 'matchDomain'   } ],
+
+    // Initialize, just store the URI + the right match function:
+    initialize: function(url, type) {
+        this._url = Services.io.newURI(url, null, null);
+
+        for (var i = 0; i < this._types.length; ++i) {
+            if (this._types[i].type == type) {
+                this._matchFunction = this[this._types[i].match];
+                this._type = type;
+                break;
+            }
+        }
+
+        // No type == no match:
+        if (!this._type) {
+            this._type = SWITCHY_TYPE_UNKNOWN;
+            this._matchFunction = function(url) { return false; }
+        }
+    },
+
+    // Match this URL?
+    match: function(url) {
+        if (!this._url || !url)
+            return false;
+
+        return this._matchFunction(url);
+    },
+
+    // The URL must match completelly:
+    matchComplete: function(url) {
+        return this._url.equals(url);
+    },
+
+    // Anything but the query string:
+    matchPath: function(url) {
+        return (this._url.host == url.host &&
+                this._url.port == url.port &&
+                this._url.path == url.path);
+    },
+
+    // Anything but the path + query:
+    matchHost: function(url) {
+        return (this._url.host == url.host &&
+                this._url.port == url.port);
+    },
+
+    // Just the domain:
+    matchDomain: function(url) {
+        if (!this._tldService) {
+            this._tldService = Components.classes["@mozilla.org/network/effective-tld-service;1"]
+                                         .getService(Components.interfaces.nsIEffectiveTLDService);
+            try {
+                this._baseDomain = this._tldService.getBaseDomainFromHost(this._url.host);
+            } catch(e) {
+                return false;
+            }
+        }
+
+        try {
+            var baseDomain = this._tldService.getBaseDomainFromHost(url.host);
+            return (baseDomain == this._baseDomain);
+        } catch(e) {
+            return false;
+        }
+    },
+};
+
 // Switchy Component
 const Switchy = {
     // properties required for XPCOM registration:
@@ -76,6 +167,7 @@ const Switchy = {
     _createTableSQL: '' +
         'CREATE TABLE IF NOT EXISTS data (' +
         '  url char(255),                 ' +
+        '  type integer,                  ' +
         '  profile char(255)              ' +
         ')',
     _selectQuerySQL: 'SELECT * FROM data',
@@ -97,7 +189,7 @@ const Switchy = {
         this._db = storageService.openDatabase(file);
 
         // Table creation:
-        this._db.executeSimpleSQL(this._createTable);
+        this._db.executeSimpleSQL(this._createTableSQL);
         this.populateCache();
     },
 
@@ -163,7 +255,9 @@ const Switchy = {
                      row;
                      row = aResultSet.getNextRow()) {
                     var profile = row.getResultByName('profile');
-                    var url     = row.getResultByName('url');
+
+                    var url = new SwitchyUrl(row.getResultByName('url'),
+                                             row.getResultByName('type'));
 
                     if (!(profile in me._cache))
                         me._cache[profile] = [];
@@ -184,16 +278,16 @@ const Switchy = {
             return;
 
         try {
-            var URI = page.location.href;
+            var url = page.location.href;
         } catch(e) { return; }
 
         // Just http and https:
-        if (URI.indexOf('http://') == -1 &&
-            URI.indexOf('https://') == -1)
+        if (url.indexOf('http://') == -1 &&
+            url.indexOf('https://') == -1)
             return;
 
-        // List of profile matching this URI:
-        var profiles = this.matchProfiles(URI);
+        // List of profile matching this URL:
+        var profiles = this.matchProfiles(url);
 
         // Unknown URL:
         if (profiles.length == 0)
@@ -204,21 +298,19 @@ const Switchy = {
             return;
 
         // Show notification:
-        this.showNotification(URI, profiles, win);
+        this.showNotification(url, profiles, win);
     },
 
-    matchProfiles: function(URI) {
+    matchProfiles: function(url) {
+        url = Services.io.newURI(url, null, null);
+
         var profiles = [];
         var pAvailable = this.getProfileNames();
 
         for (key in this._cache) {
             for (var i = 0; i < this._cache[key].length; ++i) {
                 try {
-                    // Applying the regexp:
-                    var re = new RegExp(this._cache[key][i]);
-                    var output = re.exec(URI);
-
-                    if (output != null) {
+                    if (this._cache[key][i].match(url)) {
                         if (pAvailable.indexOf(key) != -1)
                             profiles.push(key);
                         break;
@@ -230,7 +322,7 @@ const Switchy = {
         return profiles;
     },
 
-    showNotification: function(URI, profiles, win) {
+    showNotification: function(url, profiles, win) {
         var nBox = win.getBrowser().getNotificationBox();
         if (!nBox)
             return;

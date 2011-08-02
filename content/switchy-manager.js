@@ -32,24 +32,45 @@ function pageProfiles() {
 
 // Objects -------------------------------------------------------------------
 
+// Object for the 'add URL' view:
 var gSwitchyManagerAddUrl = {
+    _data: null,
+
     show: function() {
-        dump('a\n');
+        dump('URL: ' + this._data.url + '\n');
         // TODO
+    },
+
+    setData: function(args) {
+        try {
+            this._data = args[0];
+        } catch(e) {
+            this._data = null;
+        }
     }
 }
 
+// Object for the 'profiles list' view:
 var gSwitchyManagerProfiles = {
     show: function() {
         dump('p\n');
         // TODO
+    },
+
+    setData: function(args) {
+        // No data for the profiles list
     }
 }
 
+// Object for the 'about' view:
 var gSwitchyManagerAbout = {
     show: function() {
         dump('aa\n');
         // TODO
+    },
+
+    setData: function(args) {
+        // No data for the about
     }
 }
 
@@ -84,9 +105,10 @@ var gSwitchyManager = {
     __noSuchMethod__: function(id, args) {
         for (var i = 0; i < this._pages.length; ++i) {
             if (id == this._pages[i].funcName) {
+                this._pages[i].obj.setData(args);
                 this._node.selectItem(document.getElementById(this._pages[i].id));
                 break;
             }
         }
     }
-};
+}
