@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+</head>
+
+<style>
+body {
+  font-size: 150%;
+  font-family: -moz-fixed;
+}
+</style>
+<body>
+  <table>
+    <tr>
+      <td>URL</td>
+      <td><input type="text" id="add-url" /></td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="radio" name="type" id="add-type-complete" value="complete" />Complete<br />
+        Only this domain will be assigned to the profile.
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="radio" name="type" id="add-type-path" value="path" />Match til the path<br />
+        E.g.: http://www.facebook.com/?id=... and http://www.facebook.com/?photo=...
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="radio" name="type" id="add-type-host" value="host" />Match til the Host<br />
+        E.g.: http://www.flickr.com/login and http://www.flickr.com/upload
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="radio" name="type" id="add-type-domain" value="domain">Sub-domains included<br />
+        E.g.: http://www.google.com and http://plus.google.com
+      </td>
+    </tr>
+  </table>
+
+  <div id="profiles-list">
+    <input type="checkbox" id="profile" value="a" />Profile1
+    <input type="checkbox" id="profile" value="a" />Profile2
+    <input type="checkbox" id="profile" value="a" />Profile3
+    <input type="checkbox" id="profile" value="a" />Profile4
+  </div>
+
+   <input type="button" id="create" value="Create" />
+</body>
+
+</html>
