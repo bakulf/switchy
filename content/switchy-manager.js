@@ -76,6 +76,9 @@ var gSwitchyManagerAddUrl = {
         if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
             return;
 
+        // Disable the alerts:
+        this.disableAlerts();
+
         // URL:
         if (this._data) {
             this._browser.contentDocument.getElementById('add-url').value = this._data.url;
@@ -112,7 +115,75 @@ var gSwitchyManagerAddUrl = {
     },
 
     createClicked: function() {
-        // TODO
+        var switchy = Components.classes['@baku.switchy/switchy;1']
+                                .getService().wrappedJSObject;
+
+        // Getting data:
+        var url = this._browser.contentDocument.getElementById('add-url').value;
+
+        var type;
+
+        if (this._browser.contentDocument.getElementById('add-type-complete').checked)
+            type = 'complete';
+
+        if (this._browser.contentDocument.getElementById('add-type-path').checked)
+            type = 'path';
+
+        if (this._browser.contentDocument.getElementById('add-type-host').checked)
+            type = 'host';
+
+        if (this._browser.contentDocument.getElementById('add-type-domain').checked)
+            type = 'domain';
+
+        var profiles = switchy.getProfileNames();
+        var listProfiles = [];
+        for (var i = 0; i < profiles.length; ++i) {
+            profile = this._browser.contentDocument.getElementById('profile-' + profiles[i]);
+            if (profile.checked)
+                listProfiles.push(profiles[i]);
+        }
+
+        // Disable the alerts:
+        this.disableAlerts();
+
+        // Validation:
+        try {
+          url = Services.io.newURI(url, null, null);
+        } catch(e) {
+          url = null;
+        }
+
+        if (url == null) {
+            this.showAlert('alert-url');
+            return;
+        }
+
+        if (!type) {
+            this.showAlert('alert-type');
+            return;
+        }
+
+        if (listProfiles.length == 0) {
+            this.showAlert('alert-profiles');
+            return;
+        }
+
+        // Adding
+        switchy.addURL(url, type, listProfiles);
+
+        // Change Page:
+        gSwitchyManager.pageProfiles();
+    },
+
+    disableAlerts: function() {
+        alerts = [ 'alert-url', 'alert-type', 'alert-profiles' ];
+        for (var i = 0; i < alerts.length; ++i) {
+            this._browser.contentDocument.getElementById(alerts[i]).hidden = true;
+        }
+    },
+
+    showAlert: function(str) {
+        this._browser.contentDocument.getElementById(str).hidden = false;
     },
 
     onStatusChange: function() { },
@@ -133,6 +204,7 @@ var gSwitchyManagerProfiles = {
     },
 
     show: function() {
+        // TODO
         this._browser.loadURIWithFlags('chrome://switchy/content/manager/profiles.html',
                                        Components.interfaces.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY);
     },

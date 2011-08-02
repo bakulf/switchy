@@ -170,6 +170,7 @@ const Switchy = {
         '  type integer,                  ' +
         '  profile char(255)              ' +
         ')',
+    _insertQuerySQL: 'INSERT INTO data(url, type, profile) VALUES(:url, :type, :profile)',
     _selectQuerySQL: 'SELECT * FROM data',
 
     init: function() {
@@ -422,6 +423,55 @@ const Switchy = {
             return 'This website is configured to run in other profiles you want to switch?';
 
         return 'This website is configured to run in the profile "' + profiles[0] + '". Do you want to switch?';
+    },
+
+    addURL: function(url, type, profiles) {
+        var stmt = this._db.createStatement(this._insertQuerySQL);
+        var params = stmt.newBindingParamsArray();
+
+        for (var i = 0; i < profiles.length; ++i) {
+            var bp = params.newBindingParams();
+            bp.bindByName('url',     url.spec);
+            bp.bindByName('type',    this.typeFromString(type));
+            bp.bindByName('profile', profiles[i]);
+            params.addParams(bp);
+
+            this.addURLToProfile(profiles[i], new SwitchyUrl(url.spec, this.typeFromString(type)));
+        }
+
+        stmt.bindParameters(params);
+
+        stmt.executeAsync({
+            handleCompletion: function(st) {
+                // nothing here
+            },
+            handleError: function(error) {
+                dump(error.message + "\n");
+            }
+        });
+    },
+
+    addURLToProfile: function(profile, url) {
+        if (this._cache[profile])
+            this._cache[profile].push(url);
+    },
+
+    typeFromString: function(type) {
+        switch(type) {
+        case 'complete':
+            return SWITCHY_TYPE_COMPLETE;
+
+        case 'path':
+            return SWITCHY_TYPE_PATH;
+
+        case 'host':
+            return SWITCHY_TYPE_HOST;
+
+        case 'domain':
+            return SWITCHY_TYPE_DOMAIN;
+        }
+
+        return SWITCHY_TYPE_UNKNOWN;
     },
 
     observe: function(subject, topic, data) {
