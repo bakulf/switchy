@@ -84,7 +84,7 @@ function switchy_panelManager(page, newUrlObj) {
     }
 
     if (isBrowserWindow && switchy_isTabEmpty(gBrowser.selectedTab))
-        gBrowser.selectedBrowser.loadURI(aURI.spec);
+        gBrowser.selectedBrowser.loadURI(URI.spec);
     else
         openUILinkIn(URI.spec, "tab");
 

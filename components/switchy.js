@@ -192,13 +192,63 @@ const Switchy = {
         this._db.executeSimpleSQL(this._createTableSQL);
         this.populateCache();
 
-        // TODO: check the SWITCHY_URL env variable
+        XPCOMUtils.defineLazyGetter(this, "_switchyUtils",
+            function() {
+                let switchyUtilsScope = {};
+                Services.scriptloader.loadSubScript("chrome://switchy/content/switchy-utils.js", switchyUtilsScope);
+                return switchyUtilsScope.SwitchyUtils;
+             });
+
+        // List of observer
+        let os = Services.obs;
+        os.addObserver(this, "sessionstore-windows-restored", false);
     },
 
     shutdown: function() {
         if (this._db)
             this._db.close();
+
+        let os = Services.obs;
+        os.removeObserver(this, "sessionstore-windows-restored");
     },
+
+    browserReady: function() {
+        if (!this._switchyUtils)
+            return;
+
+        var env = Components.classes["@mozilla.org/process/environment;1"]
+                            .getService(Components.interfaces.nsIEnvironment);
+        var url = env.get('SWITCHY_URL');
+        if (!url || url == "")
+            return;
+
+        env.set('SWITCHY_URL', '');
+
+        var win = this.getMostRecentBrowserWindow();
+        if (!win)
+            return;
+
+        url = Services.io.newURI(url, null, null);
+        this._switchyUtils.openUrl(win, url);
+    },
+
+    getMostRecentBrowserWindow: function() {
+        var win = Services.wm.getMostRecentWindow("navigator:browser");
+        if (!win)
+            return null;
+        if (!win.closed)
+            return win;
+
+        win = null;
+        var windowsEnum = Services.wm.getEnumerator("navigator:browser");
+        while (windowsEnum.hasMoreElements()) {
+            let nextWin = windowsEnum.getNext();
+            if (!nextWin.closed)
+                win = nextWin;
+        }
+        return win;
+    },
+
 
     currentProfile: function() {
         return this._profileService.selectedProfile.name;
@@ -372,6 +422,14 @@ const Switchy = {
             return 'This website is configured to run in other profiles you want to switch?';
 
         return 'This website is configured to run in the profile "' + profiles[0] + '". Do you want to switch?';
+    },
+
+    observe: function(subject, topic, data) {
+        switch(topic) {
+        case 'sessionstore-windows-restored':
+            this.browserReady();
+            break;
+        }
     }
 };
 Switchy.wrappedJSObject = Switchy;
