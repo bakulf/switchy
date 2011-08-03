@@ -8,7 +8,7 @@
     onload="switchy_profileListUpdate(); sizeToContent();"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script src="switchy.js" />
+    <script type="application/javascript;version=1.7" src="switchy.js" />
 
     <listbox id="switchy-list-rows" />
 

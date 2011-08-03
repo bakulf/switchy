@@ -104,6 +104,29 @@ SwitchyUrl.prototype = {
         return this._url;
     },
 
+    type: function() {
+        return this._type;
+    },
+
+    typeString: function() {
+        switch(this._type) {
+        case SWITCHY_TYPE_COMPLETE:
+            return "complete";
+
+        case SWITCHY_TYPE_PATH:
+            return "path";
+
+        case SWITCHY_TYPE_HOST:
+            return "host";
+
+        case SWITCHY_TYPE_DOMAIN:
+            return "domain";
+
+        default:
+            return "unknown";
+        }
+    },
+
     startup: function() {
         return this._startup;
     },
@@ -180,9 +203,11 @@ const Switchy = {
         '  url     char(255),             ' +
         '  type    integer,               ' +
         '  profile char(255),             ' +
-        '  startup boolean                ' +
+        '  startup boolean,               ' +
+        '  PRIMARY KEY(url, profile)      ' +
         ')',
-    _insertQuerySQL: 'INSERT INTO data(url, type, profile, startup) VALUES(:url, :type, :profile, :startup)',
+    _insertQuerySQL: 'INSERT OR REPLACE INTO data(url, type, profile, startup) VALUES(:url, :type, :profile, :startup)',
+    _deleteQuerySQL: 'DELETE FROM data WHERE profile = :profile AND url = :url',
     _selectQuerySQL: 'SELECT * FROM data',
 
     init: function() {
@@ -279,6 +304,13 @@ const Switchy = {
 
     currentProfile: function() {
         return this._profileService.selectedProfile.name;
+    },
+
+    getUrlsForProfile: function(profile) {
+        if (this._cache[profile])
+            return this._cache[profile];
+
+        return [];
     },
 
     getProfileNames: function() {
@@ -450,7 +482,7 @@ const Switchy = {
         return 'This website is configured to run in the profile "' + profiles[0] + '". Do you want to switch?';
     },
 
-    addURL: function(url, type, profiles, onStartup) {
+    addURL: function(url, type, profiles, onStartup, cb) {
         var stmt = this._db.createStatement(this._insertQuerySQL);
         var params = stmt.newBindingParamsArray();
 
@@ -462,14 +494,14 @@ const Switchy = {
             bp.bindByName('startup', onStartup);
             params.addParams(bp);
 
-            this.addURLToProfile(profiles[i], new SwitchyUrl(url.spec, this.typeFromString(type)));
+            this.addURLToProfile(profiles[i], new SwitchyUrl(url.spec, this.typeFromString(type), onStartup));
         }
 
         stmt.bindParameters(params);
 
         stmt.executeAsync({
             handleCompletion: function(st) {
-                // nothing here
+                if (cb) cb();
             },
             handleError: function(error) {
                 dump(error.message + "\n");
@@ -478,8 +510,18 @@ const Switchy = {
     },
 
     addURLToProfile: function(profile, url) {
-        if (this._cache[profile])
-            this._cache[profile].push(url);
+        if (!this._cache[profile])
+            return;
+
+        // Maybe replace...
+        for (var i = 0; i <this._cache[profile].length; ++i) {
+            if (this._cache[profile][i].url().spec == url.url().spec) {
+                this._cache[profile][i] = url;
+                return;
+            }
+        }
+
+        this._cache[profile].push(url);
     },
 
     typeFromString: function(type) {
@@ -498,6 +540,41 @@ const Switchy = {
         }
 
         return SWITCHY_TYPE_UNKNOWN;
+    },
+
+    deleteURL: function(profile, url, cb) {
+        var stmt = this._db.createStatement(this._deleteQuerySQL);
+        var params = stmt.newBindingParamsArray();
+
+        var bp = params.newBindingParams();
+        bp.bindByName('url',     url);
+        bp.bindByName('profile', profile);
+        params.addParams(bp);
+
+        stmt.bindParameters(params);
+
+        this.deleteURLToProfile(profile, url, cb);
+
+        stmt.executeAsync({
+            handleCompletion: function(st) {
+                if (cb) cb();
+            },
+            handleError: function(error) {
+                dump(error.message + "\n");
+            }
+        });
+    },
+
+    deleteURLToProfile: function(profile, url) {
+        if (!this._cache[profile])
+            return;
+
+        for (var i = 0; i <this._cache[profile].length; ++i) {
+            if (this._cache[profile][i].url().spec == url) {
+                this._cache[profile].splice(i, 1);
+                break;
+            }
+        }
     },
 
     observe: function(subject, topic, data) {

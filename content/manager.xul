@@ -13,9 +13,8 @@
       disablechrome="true"
       disablefastfind="true">
 
-  <script src="switchy.js" />
-  <script src="switchy-manager.js" />
-
+  <script type="application/javascript;version=1.7" src="switchy.js" />
+  <script type="application/javascript;version=1.7" src="switchy-manager.js" />
 
   <xhtml:link rel="shortcut icon"
               href="chrome://switchy/skin/icon.png" />

@@ -5,8 +5,8 @@
 <overlay id="profile-overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script src="switchy-manager.js" />
-    <script src="switchy.js" />
+    <script type="application/javascript;version=1.7" src="switchy-manager.js" />
+    <script type="application/javascript;version=1.7" src="switchy.js" />
 
     <toolbarpalette id="BrowserToolbarPalette">
         <toolbarbutton id="switchy-toolbarbutton"

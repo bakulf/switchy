@@ -84,7 +84,7 @@ var gSwitchyManagerAddUrl = {
         var profiles = switchy.getProfileNames();
         var listProfiles = [];
         for (var i = 0; i < profiles.length; ++i) {
-            profile = this._browser.contentDocument.getElementById('profile-' + profiles[i]);
+            var profile = this._browser.contentDocument.getElementById('profile-' + profiles[i]);
             if (profile.checked)
                 listProfiles.push(profiles[i]);
         }
@@ -117,10 +117,10 @@ var gSwitchyManagerAddUrl = {
         }
 
         // Adding
-        switchy.addURL(url, type, listProfiles, onStartup);
-
-        // Change Page:
-        gSwitchyManager.pageProfiles(true);
+        switchy.addURL(url, type, listProfiles, onStartup, function() {
+            // Change Page:
+            gSwitchyManager.pageProfiles(true);
+        });
     },
 
     disableAlerts: function() {
@@ -222,6 +222,120 @@ var gSwitchyManagerProfiles = {
         } catch(e) { }
     },
 
+    createElementProfile: function(switchy, dom, profile) {
+        // FIXME: maybe the layout will be changed
+
+        // Title:
+        var title = this._browser.contentDocument.createElement('h2');
+        title.appendChild(this._browser.contentDocument.createTextNode(profile));
+        dom.appendChild(title);
+
+        var data = switchy.getUrlsForProfile(profile);
+        for (var i = 0; i<data.length; ++i) {
+            var obj = this._browser.contentDocument.createElement('div');
+            dom.appendChild(obj);
+
+            var info;
+            info = this._browser.contentDocument.createElement('span');
+            info.appendChild(this._browser.contentDocument.createTextNode('URL'));
+            obj.appendChild(info);
+
+            info = this._browser.contentDocument.createElement('span');
+            info.appendChild(this._browser.contentDocument.createTextNode(data[i].url().spec));
+            obj.appendChild(info);
+
+            info = this._browser.contentDocument.createElement('span');
+            info.appendChild(this._browser.contentDocument.createTextNode('Type'));
+            obj.appendChild(info);
+
+            info = this._browser.contentDocument.createElement('span');
+            info.appendChild(this._browser.contentDocument.createTextNode(data[i].typeString()));
+            obj.appendChild(info);
+
+            info = this._browser.contentDocument.createElement('span');
+            info.appendChild(this._browser.contentDocument.createTextNode('On Startup'));
+            obj.appendChild(info);
+
+            let startup = this._browser.contentDocument.createElement('input');
+            startup.setAttribute('type', 'checkbox');
+            if (data[i].startup()) startup.setAttribute('checked', 'true');
+            obj.appendChild(startup);
+
+            var button = this._browser.contentDocument.createElement('input');
+            button.setAttribute('type', 'button');
+            button.setAttribute('value', 'delete');
+            obj.appendChild(button);
+
+            let select = this._browser.contentDocument.createElement('select');
+            obj.appendChild(select);
+
+            var option;
+            option = this._browser.contentDocument.createElement('option');
+            option.appendChild(this._browser.contentDocument.createTextNode('Complete'));
+            if (data[i].typeString() == 'complete') option.setAttribute('selected', 'true');
+            option.setAttribute('value', 'complete');
+            select.appendChild(option);
+
+            option = this._browser.contentDocument.createElement('option');
+            if (data[i].typeString() == 'path') option.setAttribute('selected', 'true');
+            option.setAttribute('value', 'path');
+            option.appendChild(this._browser.contentDocument.createTextNode('Path'));
+            select.appendChild(option);
+
+            option = this._browser.contentDocument.createElement('option');
+            if (data[i].typeString() == 'host') option.setAttribute('selected', 'true');
+            option.setAttribute('value', 'host');
+            option.appendChild(this._browser.contentDocument.createTextNode('Host'));
+            select.appendChild(option);
+
+            option = this._browser.contentDocument.createElement('option');
+            if (data[i].typeString() == 'domain') option.setAttribute('selected', 'true');
+            option.setAttribute('value', 'domain');
+            option.appendChild(this._browser.contentDocument.createTextNode('Domain'));
+            select.appendChild(option);
+
+            var me = this;
+            let url = data[i].url().spec;
+            let item = data[i];
+
+            button.addEventListener('click', function() {
+                me.deleteURL(profile, url);
+            }, false);
+
+            select.addEventListener('change', function() {
+                me.valueChanged(profile, item, startup, select);
+            }, false);
+
+            startup.addEventListener('change', function() {
+                me.valueChanged(profile, item, startup, select);
+            }, false);
+        }
+    },
+
+    deleteURL: function(profile, url) {
+        // Wait...
+        this._browser.contentDocument.getElementById('alert-wait').hidden = false;
+
+        var switchy = Components.classes['@baku.switchy/switchy;1']
+                                .getService().wrappedJSObject;
+        var me = this;
+        switchy.deleteURL(profile, url, function() {
+            me.show();
+        });
+    },
+
+    valueChanged: function(profile, item, startup, select) {
+        // Wait...
+        this._browser.contentDocument.getElementById('alert-wait').hidden = false;
+
+        var switchy = Components.classes['@baku.switchy/switchy;1']
+                                .getService().wrappedJSObject;
+        var me = this;
+        switchy.addURL(item.url(), select.value, [profile], startup.checked, function() {
+            me.show();
+        });
+    },
+
     // For progress listener
     onLocationChange: function(aWebProgress, aRequest, aLocation) { },
 
@@ -238,12 +352,27 @@ var gSwitchyManagerProfiles = {
         if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
             return;
 
+        // Alert:
+        var alertVisible = false;
         if (this._newURL) {
-            this.newURL = false;
-            // TODO : show the alert
+            this._newURL = false;
+            alertVisible = true;
         }
 
-        // TODO: update the UI
+        this._browser.contentDocument.getElementById('alert-wait').hidden = true;
+
+        this._browser.contentDocument.getElementById('alert-url-added').hidden = !alertVisible;
+
+        var dom = this._browser.contentDocument.getElementById('profiles-list');
+        dom.innerHTML = ''; // Fastest way to remove all the content
+
+        var switchy = Components.classes['@baku.switchy/switchy;1']
+                                .getService().wrappedJSObject;
+
+        var profiles = switchy.getProfileNames();
+        for (var i = 0; i < profiles.length; ++i) {
+            this.createElementProfile(switchy, dom, profiles[i]);
+        }
     },
 
     onStatusChange: function() { },
