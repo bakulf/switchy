@@ -90,6 +90,7 @@ var gSwitchyManagerAddUrl = {
         }
 
         var onStartup = this._browser.contentDocument.getElementById('on-startup').checked;
+        var exclusive = this._browser.contentDocument.getElementById('on-exclusive').checked;
 
         // Disable the alerts:
         this.disableAlerts();
@@ -117,7 +118,7 @@ var gSwitchyManagerAddUrl = {
         }
 
         // Adding
-        switchy.addURL(url, type, listProfiles, onStartup, function() {
+        switchy.addURL(url, type, listProfiles, onStartup, exclusive, function() {
             // Change Page:
             gSwitchyManager.pageProfiles(true);
         });
@@ -183,6 +184,7 @@ var gSwitchyManagerAddUrl = {
 
         // Default value for the 'on startup'
         this._browser.contentDocument.getElementById('on-startup').checked = false;
+        this._browser.contentDocument.getElementById('on-exclusive').checked = false;
 
         // Connect the button:
         var me = this;
@@ -262,6 +264,11 @@ var gSwitchyManagerProfiles = {
             if (data[i].startup()) startup.setAttribute('checked', 'true');
             obj.appendChild(startup);
 
+            let exclusive = this._browser.contentDocument.createElement('input');
+            exclusive.setAttribute('type', 'checkbox');
+            if (data[i].exclusive()) exclusive.setAttribute('checked', 'true');
+            obj.appendChild(exclusive);
+
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('type', 'button');
             button.setAttribute('value', 'delete');
@@ -304,11 +311,15 @@ var gSwitchyManagerProfiles = {
             }, false);
 
             select.addEventListener('change', function() {
-                me.valueChanged(profile, item, startup, select);
+                me.valueChanged(profile, item, startup, exclusive, select);
             }, false);
 
             startup.addEventListener('change', function() {
-                me.valueChanged(profile, item, startup, select);
+                me.valueChanged(profile, item, startup, exclusive, select);
+            }, false);
+
+            exclusive.addEventListener('change', function() {
+                me.valueChanged(profile, item, startup, exclusive, select);
             }, false);
         }
     },
@@ -325,14 +336,14 @@ var gSwitchyManagerProfiles = {
         });
     },
 
-    valueChanged: function(profile, item, startup, select) {
+    valueChanged: function(profile, item, startup, exclusive, select) {
         // Wait...
         this._browser.contentDocument.getElementById('alert-wait').hidden = false;
 
         var switchy = Components.classes['@baku.switchy/switchy;1']
                                 .getService().wrappedJSObject;
         var me = this;
-        switchy.addURL(item.url(), select.value, [profile], startup.checked, function() {
+        switchy.addURL(item.url(), select.value, [profile], startup.checked, exclusive.checked, function() {
             me.show();
         });
     },
