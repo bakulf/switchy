@@ -3,10 +3,12 @@
 <?xml-stylesheet href="chrome://switchy/skin/main.css" type="text/css"?>
 
 <overlay id="profile-overlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+         onload="switchy_addIcon();">
 
     <script type="application/javascript;version=1.7" src="switchy-manager.js" />
     <script type="application/javascript;version=1.7" src="switchy.js" />
+    <script type="application/javascript;version=1.7" src="switchy-overlay.js" />
 
     <toolbarpalette id="BrowserToolbarPalette">
         <toolbarbutton id="switchy-toolbarbutton"

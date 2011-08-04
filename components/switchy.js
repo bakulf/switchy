@@ -193,7 +193,7 @@ const Switchy = {
 
     _xpcom_categories: [{ category: "app-startup", service: true }],
 
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProfile]),
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProfile,Components.interfaces.nsIObserver]),
 
     // ...component implementation...
     _initialized: false,
