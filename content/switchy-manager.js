@@ -230,6 +230,7 @@ var gSwitchyManagerProfiles = {
         title.appendChild(this._browser.contentDocument.createTextNode(profile));
         dom.appendChild(title);
 
+        // List of URLs:
         var data = switchy.getUrlsForProfile(profile);
         for (var i = 0; i<data.length; ++i) {
             var obj = this._browser.contentDocument.createElement('div');
@@ -294,7 +295,7 @@ var gSwitchyManagerProfiles = {
             option.appendChild(this._browser.contentDocument.createTextNode('Domain'));
             select.appendChild(option);
 
-            var me = this;
+            let me = this;
             let url = data[i].url().spec;
             let item = data[i];
 
@@ -362,6 +363,28 @@ var gSwitchyManagerProfiles = {
         this._browser.contentDocument.getElementById('alert-wait').hidden = true;
 
         this._browser.contentDocument.getElementById('alert-url-added').hidden = !alertVisible;
+
+        // At the click, let's open the profile manager:
+        var me = this;
+        this._browser.contentDocument.getElementById('create').addEventListener('click', function() {
+            var params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
+                                   .createInstance(Components.interfaces.nsIDialogParamBlock);
+            params.objects = Components.classes["@mozilla.org/array;1"]
+                                       .createInstance(Components.interfaces.nsIMutableArray);
+
+            var win = window.openDialog('chrome://mozapps/content/profile/profileSelection.xul','profile',
+                                    'chrome,dialog,centerscreen,modal', params);
+            me.show();
+
+            var profile = params.GetString(0);
+            if (params.GetInt(0)) {
+                if (confirm('Are you sure you want open the profile "' + profile + '"?')) {
+                    var switchy = Components.classes['@baku.switchy/switchy;1']
+                                            .getService().wrappedJSObject;
+                    switchy.changeProfile(profile);
+                }
+            }
+        }, false);
 
         var dom = this._browser.contentDocument.getElementById('profiles-list');
         dom.innerHTML = ''; // Fastest way to remove all the content
