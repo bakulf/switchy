@@ -23,6 +23,12 @@
                    ignorekeys="true"
                    orient="vertical"
                    onpopupshown="switchy_panelOpen();" >
+
+                <hbox>
+                  <label value="Current profile:" />
+                  <label value="" id="switchy-current-profile" />
+                </hbox>
+
                 <listbox id="switchy-panel-rows">
                 </listbox>
 

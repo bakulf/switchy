@@ -47,6 +47,10 @@ function switchy_panelOpen() {
     }
 
     rows.setAttribute('rows', count);
+
+    // Current profile:
+    var title = document.getElementById('switchy-current-profile');
+    title.value = switchy.currentProfile();
 }
 
 // Manage the click on a profile
