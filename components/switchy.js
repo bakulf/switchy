@@ -356,6 +356,9 @@ const Switchy = {
         if (!profile)
             return false;
 
+        this._profileService.selectedProfile = profile;
+        this._profileService.flush();
+
         env.set('MOZ_NO_REMOTE', '1');
         env.set('XRE_PROFILE_PATH', profile.rootDir.path);
         env.set('XRE_PROFILE_LOCAL_PATH', profile.localDir.path);
