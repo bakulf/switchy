@@ -376,11 +376,13 @@ var gSwitchyManagerProfiles = {
                                     'chrome,dialog,centerscreen,modal', params);
             me.show();
 
+            var switchy = Components.classes['@baku.switchy/switchy;1']
+                                    .getService().wrappedJSObject;
+            switchy.syncProfiles();
+
             var profile = params.GetString(0);
             if (params.GetInt(0)) {
                 if (confirm('Are you sure you want open the profile "' + profile + '"?')) {
-                    var switchy = Components.classes['@baku.switchy/switchy;1']
-                                            .getService().wrappedJSObject;
                     switchy.changeProfile(profile);
                 }
             }

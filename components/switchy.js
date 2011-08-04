@@ -313,6 +313,10 @@ const Switchy = {
         return [];
     },
 
+    syncProfiles: function() {
+        this._profileService.flush();
+    },
+
     getProfileNames: function() {
         var names = [];
 
