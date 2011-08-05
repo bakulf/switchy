@@ -390,6 +390,7 @@ var gSwitchyManagerProfiles = {
             var switchy = Components.classes['@baku.switchy/switchy;1']
                                     .getService().wrappedJSObject;
             switchy.syncProfiles();
+            switchy.checkNewProfiles();
 
             var profile = params.GetString(0);
             if (params.GetInt(0)) {

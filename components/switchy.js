@@ -324,6 +324,36 @@ const Switchy = {
         this._profileService.flush();
     },
 
+    checkNewProfiles: function() {
+        var itr = this._profileService.profiles;
+        while(itr.hasMoreElements()) {
+            var profile = itr.getNext().QueryInterface(Components.interfaces.nsIToolkitProfile);
+            this.checkNewProfile(profile.rootDir);
+        }
+    },
+
+    checkNewProfile: function(file) {
+        // I force a 'template' prefs.js so I can open a custom homepage when this profile will
+        // be activated for the first time
+
+        file = file.clone();
+        file.append('prefs.js');
+        if (file.exists())
+            return;
+
+        file.create(0x00, 0644);
+
+        var downloader = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+                                   .createInstance(Components.interfaces.nsIWebBrowserPersist);
+
+        const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
+        const flags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES;
+        downloader.persistFlags = flags | nsIWBP.PERSIST_FLAGS_FROM_CACHE;
+
+        url = Services.io.newURI('chrome://switchy/content/prefs.template', null, null);
+        downloader.saveURI(url, null, null, null, null, file);
+    },
+
     getProfileNames: function() {
         var names = [];
 

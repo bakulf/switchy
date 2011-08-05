@@ -1,0 +1,2 @@
+// TODO: location for this page
+user_pref("browser.startup.homepage", "http://localhost");
