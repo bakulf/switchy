@@ -173,13 +173,20 @@ var gSwitchyManagerAddUrl = {
         var profiles = switchy.getProfileNames();
 
         for (var i = 0; i < profiles.length; ++i) {
-            var row = this._browser.contentDocument.createElement('input');
-            row.setAttribute('type', 'checkbox');
-            row.setAttribute('id', 'profile-' + profiles[i]);
-            rows.appendChild(row);
+            var li = this._browser.contentDocument.createElement('li');
+            rows.appendChild(li);
+
+            var input = this._browser.contentDocument.createElement('input');
+            input.setAttribute('type', 'checkbox');
+            input.setAttribute('id', 'profile-' + profiles[i]);
+            li.appendChild(input);
+
+            var label = this._browser.contentDocument.createElement('label');
+            label.setAttribute('for', 'profile-' + profiles[i]);
+            li.appendChild(label);
 
             var text = this._browser.contentDocument.createTextNode(profiles[i]);
-            rows.appendChild(text);
+            label.appendChild(text);
         }
 
         // Default value for the 'on startup'

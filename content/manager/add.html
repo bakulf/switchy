@@ -6,57 +6,167 @@
 
 <style>
 body {
-  font-size: 150%;
-  font-family: -moz-fixed;
+  text-align: left;
+  font-size: 15px;
+  font-family: "Helvetica", Arial, sans-serif;
+  color:#444;
 }
+
+a {
+  color:#a71c20;
+}
+
+@font-face {
+    font-family: 'PTSans';
+    src: url('pt_sans-captionbold-webfont.eot');
+    src: url('pt_sans-captionbold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('pt_sans-captionbold-webfont.woff') format('woff'),
+         url('pt_sans-captionbold-webfont.ttf') format('truetype'),
+         url('pt_sans-captionbold-webfont.svg#PTSansCaptionBold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+#wrapper {
+  width:750px;
+  margin:20px auto;
+}
+
+#wrapper h1 {
+  text-align:center;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: 'PTSans';
+  color:#a71c20;
+  margin-bottom:10px;
+}
+
+input[type=text] {
+  -moz-border-radius:3px;
+  padding:8px;
+  border:1px solid #ccc;
+  width:250px;
+}
+
+ul {
+  margin:0;
+  padding:0;
+}
+
+ul li {
+  list-style:none;
+  margin-bottom:20px;
+  border-bottom:1px solid #eee;
+  min-height:50px;
+}
+
+ul li label {
+  float:left;
+  width:700px;
+}
+
+ul li input {
+  float:left;
+  width:30px;
+  margin-right:10px;
+}
+
+div.add-url {
+  margin-bottom:30px;
+}
+
+input[type=button] {
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(110,1,9) 15%,
+    rgb(191,10,58) 60%,
+    rgb(212,7,13) 85%
+  );
+  color:white;
+  font-family:'PTSans';
+  font-size:16px;
+  padding:10px;
+  border:0;
+  -moz-border-radius:5px;
+  cursor:pointer;
+  margin-top:30px;
+}
+
+
+
+
 </style>
 <body>
-  <div id='alert-url' style='border: 1px solid red'>Url is empty or not valid</div>
-  <div id='alert-type' style='border: 1px solid red'>Choose a type</div>
-  <div id='alert-profiles' style='border: 1px solid red'>Select one profile</div>
-
-  <table>
-    <tr>
-      <td>URL</td>
-      <td><input type="text" id="add-url" /></td>
-    </tr>
-    <tr>
-      <td colspan="2">
-        <input type="radio" name="type" id="add-type-complete" value="complete" />Complete<br />
-        Only this domain will be assigned to the profile.
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2">
-        <input type="radio" name="type" id="add-type-path" value="path" />Match til the path<br />
-        E.g.: http://www.facebook.com/?id=... and http://www.facebook.com/?photo=...
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2">
-        <input type="radio" name="type" id="add-type-host" value="host" />Match til the Host<br />
-        E.g.: http://www.flickr.com/login and http://www.flickr.com/upload
-      </td>
-    </tr>
-    <tr>
-      <td colspan="2">
-        <input type="radio" name="type" id="add-type-domain" value="domain">Sub-domains included<br />
-        E.g.: http://www.google.com and http://plus.google.com
-      </td>
-    </tr>
-  </table>
-
-  <div id="profiles-list">
-    <input type="checkbox" id="profile" value="a" />Profile1
-    <input type="checkbox" id="profile" value="a" />Profile2
-    <input type="checkbox" id="profile" value="a" />Profile3
-    <input type="checkbox" id="profile" value="a" />Profile4
+  <div id="wrapper">
+    <div id='alert-url' style='border: 1px solid red'>Url is empty or not valid</div>
+    <div id='alert-type' style='border: 1px solid red'>Choose a type</div>
+    <div id='alert-profiles' style='border: 1px solid red'>Select one profile</div>
+  
+  
+    <h1><img src="chrome://switchy/skin/logo.png" /></h1>
+    <div class="add-url">
+      <h2>1. ADD YOUR WEBSITE</h2>
+      <input type="text" id="add-url" placeholder="inser the website you want to add" />
+    </div>
+    
+    <ul>
+      <li><h2>2. HOW DO YOU WANT THE MATCH?</h2></li>
+      <li>
+        <input type="radio" name="type" id="add-type-complete" value="complete" />
+        <label for="add-type-complete">
+          Complete<br />
+          Only this domain will be assigned to the profile.
+        </label>
+      </li>
+      <li>
+        <input type="radio" name="type" id="add-type-path" value="path" />
+        <label for="add-type-path">Match til the path<br />
+          E.g.: http://www.facebook.com/?id=... and http://www.facebook.com/?photo=...</label>
+      </li>
+      <li>
+          <input type="radio" name="type" id="add-type-path" value="path" />
+          <label for="add-type-path">Match til the path<br />
+          E.g.: http://www.facebook.com/?id=... and http://www.facebook.com/?photo=…</label>
+      </li>
+      <li>
+        <input type="radio" name="type" id="add-type-host" value="host" />
+        <label for="add-type-host">Match til the Host<br />
+          E.g.: http://www.flickr.com/login and http://www.flickr.com/upload</label>
+      </li>
+      <li>
+        <input type="radio" name="type" id="add-type-domain" value="domain">
+        <label for="add-type-domain">Sub-domains included<br />
+          E.g.: http://www.google.com and http://plus.google.com</label>
+      </li>
+    </ul>
+    <h2>3. CHOOSE YOUR PROFILE</h2>
+    <ul id="profiles-list">
+      <li>
+        <input type="checkbox" id="profile" value="a" />
+        <label for="profile">Profile1</label>
+      </li>
+      <li>
+        <input type="checkbox" id="profile" value="a" />
+        <label for="profile">Profile2</label>
+      </li>
+      <li>
+        <input type="checkbox" id="profile" value="a" />
+        <label for="profile">Profile3</label>
+      </li>
+      <li>
+        <input type="checkbox" id="profile" value="a" />
+        <label for="profile">Profile4</label>
+      </li>
+    </ul>
+    <h2>4. OPTIONS</h2>
+     <input type="checkbox" id="on-startup">Open on startup of these profiles<br />
+     <input type="checkbox" id="on-exclusive">Open on exclusive of these profiles (a notification bar will be shown when this url will be open on other profiles)<br />
+  
+    <input type="button" id="create" value="Create" />
+  
   </div>
-
-   <input type="checkbox" id="on-startup">Open on startup of these profiles<br />
-   <input type="checkbox" id="on-exclusive">Open on exclusive of these profiles (a notification bar will be shown when this url will be open on other profiles)<br />
-
-   <input type="button" id="create" value="Create" />
 </body>
 
 </html>
