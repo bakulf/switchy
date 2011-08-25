@@ -69,6 +69,40 @@ input[type=button] {
   text-align:right;
 }
 
+#profiles-list ul {
+  margin:0;
+  padding:0;
+}
+
+#profiles-list ul li {
+  list-style:none;
+  margin-left:0;
+  padding-bottom:10px;
+  margin-bottom:10px;
+  height:20px;
+  border-bottom:1px solid #eee;
+}
+
+#profiles-list ul li:first-child {
+  height:30px;
+  line-height:30px;
+}
+
+#profiles-list ul li input[type=button] {
+  margin:0;
+  margin-left:300px;
+  padding:5px;
+}
+
+#profiles-list ul li strong { margin-right:5px; }
+
+#profiles-list ul li strong,
+#profiles-list ul li span,
+#profiles-list ul li input {
+  float:left;
+  display:block;
+}
+
 </style>
 <body>
   <div id="wrapper">
@@ -79,13 +113,9 @@ input[type=button] {
     <div id="profiles-list">
       <h2>aa</h2>
   
-      <div>
-        <span style="color: red">URL</span><span>url</span><br />
-        <span style="color: red">Type</span><span>type</span><br />
-        <span style="color: red">startup</span><span>true</span><br />
-        <input type="checkbox">startup<br />
-        <input type="checkbox">exclusive<br />
-        <input type="button" value="delete" /><br />
+      <ul>
+        <li><strong>URL</strong> <span>url</span>  <input type="button" value="delete" /></li>
+        <li><strong>Type</strong>
         <select>
            <option>Complete</option>
            <option>Complete</option>
@@ -93,7 +123,9 @@ input[type=button] {
            <option>Complete</option>
            <option>Complete</option>
         </select>
-      </div>
+        </li>
+        <li><strong>startup</strong> true</li>
+      </ul>
     </div>
     <input type="button" value="create a new profile" id="create" />
   
