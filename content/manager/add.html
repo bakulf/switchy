@@ -6,14 +6,14 @@
 </head>
 <body>
   <div id="wrapper">
-    <div id='alert-url' style='border: 1px solid red'>Url is empty or not valid</div>
-    <div id='alert-type' style='border: 1px solid red'>Choose a type</div>
-    <div id='alert-profiles' style='border: 1px solid red'>Select one profile</div>
   
   
     <h1><img src="chrome://switchy/skin/logo.png" /></h1>
     <div class="add-url">
       <h2>1. ADD YOUR WEBSITE</h2>
+      <div id='alert-url' class="error">Url is empty or not valid</div>
+      <div id='alert-type' class="warning">Choose a type</div>
+      <div id='alert-profiles' class="error">Select one profile</div>
       <input type="text" id="add-url" placeholder="inser the website you want to add" />
     </div>
     

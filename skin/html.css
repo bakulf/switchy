@@ -8,6 +8,7 @@ body {
 #wrapper {
   width:750px;
   margin:20px auto;
+  text-align: left
 }
 
 #wrapper h1 {
@@ -79,6 +80,36 @@ div.add-url {
   margin-bottom:30px;
 }
 
+.error {
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(140,1,9) 15%,
+    rgb(210,10,58) 60%,
+    rgb(255,7,13) 85%
+  );
+  border:1px solid #aa0000;
+  color:white;
+  -moz-border-radius: 5px;
+  padding:10px 5px;
+  text-align: center;
+  margin-bottom:20px;
+}
+
+.warning {
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(180,180,180) 15%,
+    rgb(120,120,120) 60%,
+    rgb(50,50,50) 85%
+  );
+  color:white;
+  -moz-border-radius: 5px;
+  padding:10px 5px;
+  text-align: center;
+  margin:20px 0;
+
+}
+
 input[type=button] {
   background-image: -moz-linear-gradient(
     center bottom,
@@ -86,6 +117,7 @@ input[type=button] {
     rgb(191,10,58) 60%,
     rgb(212,7,13) 85%
   );
+  border:1px solid #aa0000;
   color:white;
   font-family:'PTSans';
   font-size:16px;
@@ -94,6 +126,16 @@ input[type=button] {
   -moz-border-radius:5px;
   cursor:pointer;
   margin-top:30px;
+  width:auto;
+}
+
+input[type=button]:hover {
+  background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(212,7,13) 100%,
+    rgb(191,10,58) 60%,
+    rgb(110,1,9) 15%
+  );
 }
 
 #profiles-list ul {
@@ -117,9 +159,12 @@ input[type=button] {
 
 #profiles-list ul li input[type=button] {
   margin:0;
-  margin-left:300px;
   padding:5px;
 }
+#profiles-list ul li span {
+  margin-right:30px;
+}
+
 
 #profiles-list ul li strong { margin-right:5px; }
 
