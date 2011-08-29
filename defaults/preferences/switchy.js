@@ -1,1 +1,1 @@
-// Nothing yet
+pref("extensions.switchy.firstRun", true);

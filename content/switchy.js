@@ -22,7 +22,22 @@ window.addEventListener("load", function() {
             switchy.checkURL(evnt, window);
         }, true);
     }
+
+    if (switchy.firstRun()) {
+        switchy_addIcon();
+    }
 }, false);
+
+// Add the icon to the navBar
+function switchy_addIcon() {
+    var icon   = "switchy-toolbarbutton";
+    var navBar = document.getElementById("nav-bar") || document.getElementById("addon-bar");
+    var obj    = document.getElementById(icon);
+
+    navBar.insertItem(icon, null, null, false);
+    navBar.setAttribute("currentset", navBar.currentSet);
+    document.persist(navBar.id, "currentset");
+}
 
 // Populate the panel:
 function switchy_panelOpen() {
