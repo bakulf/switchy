@@ -264,9 +264,12 @@ var gSwitchyManagerProfiles = {
             button.setAttribute('value', 'delete');
             h3.appendChild(button);
 
+            var desc = this._browser.contentDocument.createElement('div');
+            desc.setAttribute('class', 'description');
+            li.appendChild(desc);
+
             var div = this._browser.contentDocument.createElement('div');
-            div.setAttribute('class', 'description');
-            li.appendChild(div);
+            desc.appendChild(div);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('Type'));
@@ -300,9 +303,8 @@ var gSwitchyManagerProfiles = {
             option.appendChild(this._browser.contentDocument.createTextNode('Domain'));
             select.appendChild(option);
 
-            var br;
-            br = this._browser.contentDocument.createElement('br');
-            div.appendChild(br);
+            var div = this._browser.contentDocument.createElement('div');
+            desc.appendChild(div);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('On Startup'));
@@ -313,8 +315,8 @@ var gSwitchyManagerProfiles = {
             if (data[i].startup()) startup.setAttribute('checked', 'true');
             div.appendChild(startup);
 
-            br = this._browser.contentDocument.createElement('br');
-            div.appendChild(br);
+            var div = this._browser.contentDocument.createElement('div');
+            desc.appendChild(div);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('Exclusive'));
