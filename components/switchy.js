@@ -216,7 +216,8 @@ const Switchy = {
         '  exclusive boolean,             ' +
         '  PRIMARY KEY(url, profile)      ' +
         ')',
-    _insertQuerySQL: 'INSERT OR REPLACE INTO data(url, type, profile, startup, exclusive) VALUES(:url, :type, :profile, :startup, :exclusive)',
+    _insertQuerySQL: 'INSERT INTO data(url, type, profile, startup, exclusive) VALUES(:url, :type, :profile, :startup, :exclusive)',
+    _updateQuerySQL: 'UPDATE data SET url = :url, type = :type, startup = :startup, exclusive = :exclusive WHERE url = :prevUrl AND profile = :profile',
     _deleteQuerySQL: 'DELETE FROM data WHERE profile = :profile AND url = :url',
     _selectQuerySQL: 'SELECT * FROM data',
 
@@ -420,8 +421,11 @@ const Switchy = {
         return true;
     },
 
-    populateCache: function() {
+    populateCache: function(cb) {
         var stmt = this._db.createStatement(this._selectQuerySQL);
+
+        // Refresh the cache:
+        this._cache = {};
 
         var me = this;
         stmt.executeAsync({
@@ -430,6 +434,13 @@ const Switchy = {
                      row;
                      row = aResultSet.getNextRow()) {
                     var profile = row.getResultByName('profile');
+
+                    // Security check:
+                    try {
+                        Services.io.newURI(row.getResultByName('url'), null, null);
+                    } catch(e) {
+                        continue;
+                    }
 
                     var url = new SwitchyUrl(row.getResultByName('url'),
                                              row.getResultByName('type'),
@@ -444,7 +455,7 @@ const Switchy = {
             },
 
             handleCompletion: function(st) {
-                // nothing here
+                if (cb) cb();
             }
         });
     },
@@ -543,7 +554,14 @@ const Switchy = {
         return 'This website is configured to run in the profile "' + profiles[0] + '". Do you want to switch?';
     },
 
-    addURL: function(url, type, profiles, onStartup, exclusive, cb) {
+    addURL: function(prevUrl, url, type, profiles, onStartup, exclusive, cb) {
+        if (prevUrl)
+          this.updateURL(prevUrl, url, type, profiles, onStartup, exclusive, cb);
+        else
+          this.insertURL(url, type, profiles, onStartup, exclusive, cb);
+    },
+
+    insertURL: function(url, type, profiles, onStartup, exclusive, cb) {
         var stmt = this._db.createStatement(this._insertQuerySQL);
         var params = stmt.newBindingParamsArray();
 
@@ -555,35 +573,57 @@ const Switchy = {
             bp.bindByName('startup',   onStartup);
             bp.bindByName('exclusive', exclusive);
             params.addParams(bp);
-
-            this.addURLToProfile(profiles[i], new SwitchyUrl(url.spec, this.typeFromString(type), onStartup, exclusive));
         }
 
         stmt.bindParameters(params);
 
+        let me = this;
         stmt.executeAsync({
+            error: false,
+
             handleCompletion: function(st) {
-                if (cb) cb();
+                let obj = this;
+                me.populateCache(function() { cb(!obj.error); });
             },
+
             handleError: function(error) {
-                dump('a: ' + error.message + "\n");
+                dump('insertURL: ' + error.message + "\n");
+                this.error = true;
             }
         });
     },
 
-    addURLToProfile: function(profile, url) {
-        if (!this._cache[profile])
-            this._cache[profile] = [];
+    updateURL: function(prevUrl, url, type, profiles, onStartup, exclusive, cb) {
+        var stmt = this._db.createStatement(this._updateQuerySQL);
+        var params = stmt.newBindingParamsArray();
 
-        // Maybe replace...
-        for (var i = 0; i <this._cache[profile].length; ++i) {
-            if (this._cache[profile][i].url().spec == url.url().spec) {
-                this._cache[profile][i] = url;
-                return;
-            }
+        for (var i = 0; i < profiles.length; ++i) {
+            var bp = params.newBindingParams();
+            bp.bindByName('prevUrl',   prevUrl.spec);
+            bp.bindByName('url',       url.spec);
+            bp.bindByName('type',      this.typeFromString(type));
+            bp.bindByName('profile',   profiles[i]);
+            bp.bindByName('startup',   onStartup);
+            bp.bindByName('exclusive', exclusive);
+            params.addParams(bp);
         }
 
-        this._cache[profile].push(url);
+        stmt.bindParameters(params);
+
+        let me = this;
+        stmt.executeAsync({
+            error: false,
+
+            handleCompletion: function(st) {
+                let obj = this;
+                me.populateCache(function() { cb(!obj.error); });
+            },
+
+            handleError: function(error) {
+                dump('updateURL: ' + error.message + "\n");
+                this.error = true;
+            }
+        });
     },
 
     typeFromString: function(type) {
@@ -615,28 +655,20 @@ const Switchy = {
 
         stmt.bindParameters(params);
 
-        this.deleteURLToProfile(profile, url, cb);
-
+        let me = this;
         stmt.executeAsync({
+            error: false,
+
             handleCompletion: function(st) {
-                if (cb) cb();
+                let obj = this;
+                me.populateCache(function() { cb(!obj.error); });
             },
+
             handleError: function(error) {
-                dump('b:' + error.message + "\n");
+                dump('deleteURL:' + error.message + "\n");
+                this.error = true;
             }
         });
-    },
-
-    deleteURLToProfile: function(profile, url) {
-        if (!this._cache[profile])
-            return;
-
-        for (var i = 0; i <this._cache[profile].length; ++i) {
-            if (this._cache[profile][i].url().spec == url) {
-                this._cache[profile].splice(i, 1);
-                break;
-            }
-        }
     },
 
     observe: function(subject, topic, data) {

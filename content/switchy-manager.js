@@ -118,14 +118,18 @@ var gSwitchyManagerAddUrl = {
         }
 
         // Adding
-        switchy.addURL(url, type, listProfiles, onStartup, exclusive, function() {
+        let me = this;
+        switchy.addURL(null, url, type, listProfiles, onStartup, exclusive, function(state) {
             // Change Page:
-            gSwitchyManager.pageProfiles(true);
+            if (state == true)
+                gSwitchyManager.pageProfiles('alert-url-added');
+            else
+                me.showAlert('alert-error');
         });
     },
 
     disableAlerts: function() {
-        var alerts = [ 'alert-url', 'alert-type', 'alert-profiles' ];
+        var alerts = [ 'alert-url', 'alert-type', 'alert-profiles', 'alert-error' ];
         for (var i = 0; i < alerts.length; ++i) {
             this._browser.contentDocument.getElementById(alerts[i]).hidden = true;
         }
@@ -209,7 +213,7 @@ var gSwitchyManagerAddUrl = {
 // Object for the 'profiles list' view:
 var gSwitchyManagerProfiles = {
     _browser: null,
-    _newURL: false,
+    _alert: null,
 
     initialize: function() {
         this._browser = document.getElementById('profiles-browser');
@@ -227,7 +231,7 @@ var gSwitchyManagerProfiles = {
 
     setData: function(args) {
         try {
-            this._newURL = args[0];
+            this._alert = args[0];
         } catch(e) { }
     },
 
@@ -255,9 +259,10 @@ var gSwitchyManagerProfiles = {
             info.appendChild(this._browser.contentDocument.createTextNode('URL'));
             h3.appendChild(info);
 
-            info = this._browser.contentDocument.createElement('span');
-            info.appendChild(this._browser.contentDocument.createTextNode(data[i].url().spec));
-            h3.appendChild(info);
+            let urlInput = this._browser.contentDocument.createElement('input');
+            urlInput.setAttribute('type', 'text');
+            urlInput.setAttribute('value', data[i].url().spec);
+            h3.appendChild(urlInput);
 
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('type', 'button');
@@ -336,15 +341,19 @@ var gSwitchyManagerProfiles = {
             }, false);
 
             select.addEventListener('change', function() {
-                me.valueChanged(profile, item, startup, exclusive, select);
+                me.valueChanged(profile, item, urlInput, select, startup, exclusive);
             }, false);
 
             startup.addEventListener('change', function() {
-                me.valueChanged(profile, item, startup, exclusive, select);
+                me.valueChanged(profile, item, urlInput, select, startup, exclusive);
             }, false);
 
             exclusive.addEventListener('change', function() {
-                me.valueChanged(profile, item, startup, exclusive, select);
+                me.valueChanged(profile, item, urlInput, select, startup, exclusive);
+            }, false);
+
+            urlInput.addEventListener('change', function() {
+                me.valueChanged(profile, item, urlInput, select, startup, exclusive);
             }, false);
         }
     },
@@ -356,19 +365,28 @@ var gSwitchyManagerProfiles = {
         var switchy = Components.classes['@baku.switchy/switchy;1']
                                 .getService().wrappedJSObject;
         var me = this;
-        switchy.deleteURL(profile, url, function() {
+        switchy.deleteURL(profile, url, function(state) {
+            me._alert = (state == true ? 'alert-url-saved' : 'alert-url-error');
             me.show();
         });
     },
 
-    valueChanged: function(profile, item, startup, exclusive, select) {
+    valueChanged: function(profile, item, url, select, startup, exclusive) {
+        try {
+            url = Services.io.newURI(url.value, null, null);
+        } catch(e) {
+            this._browser.contentDocument.getElementById('alert-url-error').hidden = false;
+            return;
+        }
+
         // Wait...
         this._browser.contentDocument.getElementById('alert-wait').hidden = false;
 
         var switchy = Components.classes['@baku.switchy/switchy;1']
                                 .getService().wrappedJSObject;
         var me = this;
-        switchy.addURL(item.url(), select.value, [profile], startup.checked, exclusive.checked, function() {
+        switchy.addURL(item.url(), url, select.value, [profile], startup.checked, exclusive.checked, function(state) {
+            me._alert = (state == true ? 'alert-url-saved' : 'alert-url-error');
             me.show();
         });
     },
@@ -390,15 +408,11 @@ var gSwitchyManagerProfiles = {
             return;
 
         // Alert:
-        var alertVisible = false;
-        if (this._newURL) {
-            this._newURL = false;
-            alertVisible = true;
-        }
+        var alerts = [ 'alert-wait', 'alert-url-added', 'alert-url-saved', 'alert-url-error' ];
+        for (var i = 0; i < alerts.length; ++i)
+            this._browser.contentDocument.getElementById(alerts[i]).hidden = (this._alert != alerts[i]);
 
-        this._browser.contentDocument.getElementById('alert-wait').hidden = true;
-
-        this._browser.contentDocument.getElementById('alert-url-added').hidden = !alertVisible;
+        this._alert = null;
 
         // At the click, let's open the profile manager:
         var me = this;
