@@ -81,18 +81,22 @@ div.add-url {
 }
 
 .error {
+  border:1px solid #aa0000;
   background-image: -moz-linear-gradient(
     center bottom,
     rgb(140,1,9) 15%,
     rgb(210,10,58) 60%,
     rgb(255,7,13) 85%
   );
-  border:1px solid #aa0000;
+  position: fixed;
+  top:0px;
+  left:10%;
+  width:80%;
   color:white;
   -moz-border-radius: 5px;
   padding:10px 5px;
   text-align: center;
-  margin-bottom:20px;
+  margin:20px 0;
 }
 
 .warning {
@@ -102,12 +106,15 @@ div.add-url {
     rgb(120,120,120) 60%,
     rgb(50,50,50) 85%
   );
+  position: fixed;
+  top:0px;
+  left:10%;
+  width:80%;
   color:white;
   -moz-border-radius: 5px;
   padding:10px 5px;
   text-align: center;
   margin:20px 0;
-
 }
 
 input[type=button] {

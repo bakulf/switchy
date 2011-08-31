@@ -38,6 +38,7 @@ function pageProfiles() {
 var gSwitchyManagerAddUrl = {
     _data: null,
     _browser: null,
+    _timer: null,
 
     initialize: function() {
         this._browser = document.getElementById('add-browser');
@@ -137,6 +138,16 @@ var gSwitchyManagerAddUrl = {
 
     showAlert: function(str) {
         this._browser.contentDocument.getElementById(str).hidden = false;
+
+        if (!this._timer)
+            this._timer = Components.classes["@mozilla.org/timer;1"]
+                                    .createInstance(Components.interfaces.nsITimer);
+        else
+            this._timer.cancel();
+
+        let me = this;
+        var eventTimeout = { notify: function(timer) { me.disableAlerts(); } }
+        this._timer.initWithCallback(eventTimeout, 3000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
     },
 
     // For progress listener
@@ -214,6 +225,7 @@ var gSwitchyManagerAddUrl = {
 var gSwitchyManagerProfiles = {
     _browser: null,
     _alert: null,
+    _timer: null,
 
     initialize: function() {
         this._browser = document.getElementById('profiles-browser');
@@ -360,7 +372,7 @@ var gSwitchyManagerProfiles = {
 
     deleteURL: function(profile, url) {
         // Wait...
-        this._browser.contentDocument.getElementById('alert-wait').hidden = false;
+        this.showAlert('alert-wait');
 
         var switchy = Components.classes['@baku.switchy/switchy;1']
                                 .getService().wrappedJSObject;
@@ -375,12 +387,12 @@ var gSwitchyManagerProfiles = {
         try {
             url = Services.io.newURI(url.value, null, null);
         } catch(e) {
-            this._browser.contentDocument.getElementById('alert-url-error').hidden = false;
+            this.showAlert('alert-url-error');
             return;
         }
 
         // Wait...
-        this._browser.contentDocument.getElementById('alert-wait').hidden = false;
+        this.showAlert('alert-wait');
 
         var switchy = Components.classes['@baku.switchy/switchy;1']
                                 .getService().wrappedJSObject;
@@ -389,6 +401,26 @@ var gSwitchyManagerProfiles = {
             me._alert = (state == true ? 'alert-url-saved' : 'alert-url-error');
             me.show();
         });
+    },
+
+    disableAlerts: function() {
+        var alerts = [ 'alert-wait', 'alert-url-added', 'alert-url-saved', 'alert-url-error' ];
+        for (var i = 0; i < alerts.length; ++i)
+            this._browser.contentDocument.getElementById(alerts[i]).hidden = true;
+    },
+
+    showAlert: function(str) {
+        this._browser.contentDocument.getElementById(str).hidden = false;
+
+        if (!this._timer)
+            this._timer = Components.classes["@mozilla.org/timer;1"]
+                                    .createInstance(Components.interfaces.nsITimer);
+        else
+            this._timer.cancel();
+
+        let me = this;
+        var eventTimeout = { notify: function(timer) { me.disableAlerts(); } }
+        this._timer.initWithCallback(eventTimeout, 3000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
     },
 
     // For progress listener
@@ -408,11 +440,11 @@ var gSwitchyManagerProfiles = {
             return;
 
         // Alert:
-        var alerts = [ 'alert-wait', 'alert-url-added', 'alert-url-saved', 'alert-url-error' ];
-        for (var i = 0; i < alerts.length; ++i)
-            this._browser.contentDocument.getElementById(alerts[i]).hidden = (this._alert != alerts[i]);
-
-        this._alert = null;
+        this.disableAlerts();
+        if (this._alert) {
+            this.showAlert(this._alert);
+            this._alert = null;
+        }
 
         // At the click, let's open the profile manager:
         var me = this;
