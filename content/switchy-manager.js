@@ -232,46 +232,48 @@ var gSwitchyManagerProfiles = {
     },
 
     createElementProfile: function(switchy, dom, profile) {
-        // FIXME: maybe the layout will be changed
 
         // Title:
         var title = this._browser.contentDocument.createElement('h2');
         title.appendChild(this._browser.contentDocument.createTextNode(profile));
         dom.appendChild(title);
 
+        var obj = this._browser.contentDocument.createElement('ul');
+        dom.appendChild(obj);
+
         // List of URLs:
         var data = switchy.getUrlsForProfile(profile);
         for (var i = 0; i<data.length; ++i) {
-            var obj = this._browser.contentDocument.createElement('ul');
-            dom.appendChild(obj);
-
-            var li;
-            li = this._browser.contentDocument.createElement('li');
+            var li = this._browser.contentDocument.createElement('li');
             obj.appendChild(li);
+
+            var h3 = this._browser.contentDocument.createElement('h3');
+            li.appendChild(h3);
 
             var info;
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('URL'));
-            li.appendChild(info);
+            h3.appendChild(info);
 
             info = this._browser.contentDocument.createElement('span');
             info.appendChild(this._browser.contentDocument.createTextNode(data[i].url().spec));
-            li.appendChild(info);
+            h3.appendChild(info);
 
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('type', 'button');
             button.setAttribute('value', 'delete');
-            li.appendChild(button);
+            h3.appendChild(button);
 
-            li = this._browser.contentDocument.createElement('li');
-            obj.appendChild(li);
+            var div = this._browser.contentDocument.createElement('div');
+            div.setAttribute('class', 'description');
+            li.appendChild(div);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('Type'));
-            li.appendChild(info);
+            div.appendChild(info);
 
             let select = this._browser.contentDocument.createElement('select');
-            li.appendChild(select);
+            div.appendChild(select);
 
             var option;
             option = this._browser.contentDocument.createElement('option');
@@ -298,29 +300,30 @@ var gSwitchyManagerProfiles = {
             option.appendChild(this._browser.contentDocument.createTextNode('Domain'));
             select.appendChild(option);
 
-            li = this._browser.contentDocument.createElement('li');
-            obj.appendChild(li);
+            var br;
+            br = this._browser.contentDocument.createElement('br');
+            div.appendChild(br);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('On Startup'));
-            li.appendChild(info);
+            div.appendChild(info);
 
             let startup = this._browser.contentDocument.createElement('input');
             startup.setAttribute('type', 'checkbox');
             if (data[i].startup()) startup.setAttribute('checked', 'true');
-            li.appendChild(startup);
+            div.appendChild(startup);
 
-            li = this._browser.contentDocument.createElement('li');
-            obj.appendChild(li);
+            br = this._browser.contentDocument.createElement('br');
+            div.appendChild(br);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('Exclusive'));
-            li.appendChild(info);
+            div.appendChild(info);
 
             let exclusive = this._browser.contentDocument.createElement('input');
             exclusive.setAttribute('type', 'checkbox');
             if (data[i].exclusive()) exclusive.setAttribute('checked', 'true');
-            li.appendChild(exclusive);
+            div.appendChild(exclusive);
 
             let me = this;
             let url = data[i].url().spec;
