@@ -54,9 +54,9 @@ function switchy_panelOpen() {
         if (profiles[i] != switchy.currentProfile()) {
             ++count;
 
-            var row = document.createElement('listitem');
+            let row = document.createElement('listitem');
             row.setAttribute('label', profiles[i]);
-            row.setAttribute('onclick', 'switchy_panelSelected(this);');
+            row.addEventListener('click', function() { switchy_panelSelected(row); });
             rows.appendChild(row);
         }
     }
@@ -176,9 +176,9 @@ function switchy_profileListUpdate() {
     var rows = document.getElementById('switchy-list-rows');
 
     for (var i = 0; i < data.profiles.length; ++i) {
-        var row = document.createElement('listitem');
+        let row = document.createElement('listitem');
         row.setAttribute('label', data.profiles[i]);
-        row.setAttribute('onclick', 'switchy_profileListSelected(this);');
+        row.addEventListener('click', function() { switchy_profileListSelected(row); });
         rows.appendChild(row);
     }
 

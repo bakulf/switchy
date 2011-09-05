@@ -5,12 +5,13 @@
   <RDF:Description about="urn:mozilla:install-manifest">
     <em:name>Switchy</em:name>
     <em:id>id@baku.switchy</em:id>
+    <em:type>2</em:type>
     <em:version>0.1</em:version>
     <em:description>Manage your profiles easily</em:description>
     <em:creator>b</em:creator>
 
     <em:iconURL>chrome://switchy/skin/logo.png</em:iconURL>
-    <em:homepageURL>http://www.TODO</em:homepageURL>
+    <em:homepageURL>http://www.autistici.org/bakunin/switchy/</em:homepageURL>
 
     <em:targetApplication>
       <RDF:Description>
