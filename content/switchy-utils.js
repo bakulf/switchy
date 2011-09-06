@@ -1,3 +1,5 @@
+/* See license.txt for terms of usage */
+
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 function SwitchyUtils() {}
