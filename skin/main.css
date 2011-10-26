@@ -1,0 +1,7 @@
+#switchy-toolbarbutton {
+  list-style-image: url("chrome://switchy/skin/icon_big.png");
+}
+
+toolbar[iconsize="small"] #switchy-toolbarbutton {
+  list-style-image: url("chrome://switchy/skin/icon_small.png");
+}

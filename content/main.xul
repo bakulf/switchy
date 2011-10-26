@@ -14,7 +14,6 @@
                        class="toolbarbutton-1 chromeclass-toolbar-additional"
                        tooltiptext="Choose your profile"
                        label="Switchy"
-                       image="chrome://switchy/skin/icon.png"
                        type="menu"
                        orient="horizontal">
             <panel id="switchy-panel"

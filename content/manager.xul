@@ -17,7 +17,7 @@
   <script type="application/javascript;version=1.7" src="switchy-manager.js" />
 
   <xhtml:link rel="shortcut icon"
-              href="chrome://switchy/skin/icon.png" />
+              href="chrome://switchy/skin/icon_big.png" />
 
   <!-- main header -->
   <hbox flex="1">
