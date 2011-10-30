@@ -235,6 +235,7 @@ var gSwitchyManagerProfiles = {
     _browser: null,
     _alert: null,
     _timer: null,
+    _prompt: null,
 
     initialize: function() {
         this._browser = document.getElementById('profiles-browser');
@@ -258,10 +259,36 @@ var gSwitchyManagerProfiles = {
 
     createElementProfile: function(switchy, dom, profile) {
 
+        let me = this;
+
         // Title:
         var title = this._browser.contentDocument.createElement('h2');
         title.appendChild(this._browser.contentDocument.createTextNode(profile));
         dom.appendChild(title);
+
+        {
+            var button = this._browser.contentDocument.createElement('input');
+            button.setAttribute('class', 'right');
+            button.setAttribute('type', 'button');
+            button.setAttribute('value', 'delete');
+            title.appendChild(button);
+
+            button.addEventListener('click', function() {
+                me.deleteProfile(profile);
+            }, false);
+        }
+
+        {
+            var button = this._browser.contentDocument.createElement('input');
+            button.setAttribute('class', 'right');
+            button.setAttribute('type', 'button');
+            button.setAttribute('value', 'rename');
+            title.appendChild(button);
+
+            button.addEventListener('click', function() {
+                me.renameProfile(profile);
+            }, false);
+        }
 
         var obj = this._browser.contentDocument.createElement('ul');
         dom.appendChild(obj);
@@ -286,23 +313,28 @@ var gSwitchyManagerProfiles = {
             h3.appendChild(urlInput);
 
             var button = this._browser.contentDocument.createElement('input');
+            button.setAttribute('class', 'right');
             button.setAttribute('type', 'button');
             button.setAttribute('value', 'delete');
             h3.appendChild(button);
 
-            var desc = this._browser.contentDocument.createElement('div');
-            desc.setAttribute('class', 'description');
-            li.appendChild(desc);
+            var table = this._browser.contentDocument.createElement('table');
+            table.setAttribute('class', 'description');
+            li.appendChild(table);
 
-            var div = this._browser.contentDocument.createElement('div');
-            desc.appendChild(div);
+            var tr = this._browser.contentDocument.createElement('tr');
+            table.appendChild(tr);
+
+            var td;
+            td = this._browser.contentDocument.createElement('td');
+            tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('Type'));
-            div.appendChild(info);
+            td.appendChild(info);
 
             let select = this._browser.contentDocument.createElement('select');
-            div.appendChild(select);
+            td.appendChild(select);
 
             var option;
             option = this._browser.contentDocument.createElement('option');
@@ -329,31 +361,30 @@ var gSwitchyManagerProfiles = {
             option.appendChild(this._browser.contentDocument.createTextNode('Domain'));
             select.appendChild(option);
 
-            var div = this._browser.contentDocument.createElement('div');
-            desc.appendChild(div);
+            td = this._browser.contentDocument.createElement('td');
+            tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('On Startup'));
-            div.appendChild(info);
+            td.appendChild(info);
 
             let startup = this._browser.contentDocument.createElement('input');
             startup.setAttribute('type', 'checkbox');
             if (data[i].startup()) startup.setAttribute('checked', 'true');
-            div.appendChild(startup);
+            td.appendChild(startup);
 
-            var div = this._browser.contentDocument.createElement('div');
-            desc.appendChild(div);
+            td = this._browser.contentDocument.createElement('td');
+            tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
             info.appendChild(this._browser.contentDocument.createTextNode('Exclusive'));
-            div.appendChild(info);
+            td.appendChild(info);
 
             let exclusive = this._browser.contentDocument.createElement('input');
             exclusive.setAttribute('type', 'checkbox');
             if (data[i].exclusive()) exclusive.setAttribute('checked', 'true');
-            div.appendChild(exclusive);
+            td.appendChild(exclusive);
 
-            let me = this;
             let url = data[i].url().spec;
             let item = data[i];
 
@@ -376,6 +407,65 @@ var gSwitchyManagerProfiles = {
             urlInput.addEventListener('change', function() {
                 me.valueChanged(profile, item, urlInput, select, startup, exclusive);
             }, false);
+        }
+    },
+
+    needPrompt: function() {
+        if (!this._prompt) {
+            this._prompt = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                                     .getService(Components.interfaces.nsIPromptService);
+        }
+    },
+
+    deleteProfile: function(profile) {
+        var deleteFiles = false;
+
+        var switchy = Components.classes['@baku.switchy/switchy;1']
+                                .getService().wrappedJSObject;
+        var selectedProfile = switchy.profileService().selectedProfile;
+        if (selectedProfile.rootDir.exists()) {
+            var msg = 'Deleting a profile will remove the profile from the list of available profiles and cannot be undone.\n' +
+                      'You may also choose to delete the profile data files, including your settings, certificates and other user-related data. This option will delete the folder "' + selectedProfile.rootDir.path + '" and cannot be undone.\n' +
+                      'Would you like to delete the profile data files?';
+
+            this.needPrompt();
+
+            var buttonPressed = this._prompt.confirmEx(window, 'Deleting a profile...', msg,
+                          (this._prompt.BUTTON_TITLE_IS_STRING * this._prompt.BUTTON_POS_0) +
+                          (this._prompt.BUTTON_TITLE_CANCEL    * this._prompt.BUTTON_POS_1) +
+                          (this._prompt.BUTTON_TITLE_IS_STRING * this._prompt.BUTTON_POS_2),
+                          'Don\'t Delete Files',
+                          null,
+                          'Delete Files',
+                          null, {value:0});
+            if (buttonPressed == 1)
+                return false;
+
+            if (buttonPressed == 2)
+                deleteFiles = true;
+        }
+
+        switchy.deleteProfile(profile, deleteFiles);
+        this.show();
+    },
+
+    renameProfile: function(profile) {
+        this.needPrompt();
+
+        var newName = {value: profile};
+        var msg = "Rename the profile '" + profile + "' to...";
+
+        if (this._prompt.prompt(window, "Renaming profile...", msg, newName, null, {value:0})) {
+            newName = newName.value;
+
+            // User hasn't changed the profile name. Treat as if cancel was pressed.
+            if (newName == profile)
+                return false;
+
+            var switchy = Components.classes['@baku.switchy/switchy;1']
+                                    .getService().wrappedJSObject;
+            switchy.renameProfile(profile, newName);
+            this.show();
         }
     },
 
@@ -458,26 +548,16 @@ var gSwitchyManagerProfiles = {
         // At the click, let's open the profile manager:
         var me = this;
         this._browser.contentDocument.getElementById('create').addEventListener('click', function() {
-            var params = Components.classes["@mozilla.org/embedcomp/dialogparam;1"]
-                                   .createInstance(Components.interfaces.nsIDialogParamBlock);
-            params.objects = Components.classes["@mozilla.org/array;1"]
-                                       .createInstance(Components.interfaces.nsIMutableArray);
-
-            var win = window.openDialog('chrome://mozapps/content/profile/profileSelection.xul','profile',
-                                    'chrome,dialog,centerscreen,modal', params);
-            me.show();
-
             var switchy = Components.classes['@baku.switchy/switchy;1']
                                     .getService().wrappedJSObject;
+
+            var win = window.openDialog('chrome://mozapps/content/profile/createProfileWizard.xul',
+                                        '', 'centerscreen,chrome,modal,titlebar',
+                                        switchy.profileService());
+            me.show();
+
             switchy.syncProfiles();
             switchy.checkNewProfiles();
-
-            var profile = params.GetString(0);
-            if (params.GetInt(0)) {
-                if (confirm('Are you sure you want open the profile "' + profile + '"?')) {
-                    switchy.changeProfile(profile);
-                }
-            }
         }, false);
 
         var dom = this._browser.contentDocument.getElementById('profiles-list');
@@ -496,6 +576,10 @@ var gSwitchyManagerProfiles = {
 
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIWebProgressListener,
                                            Components.interfaces.nsISupportsWeakReference])
+}
+
+function CreateProfile(profile) {
+    // Called by the profile wizard. Nothing to do.
 }
 
 // Object for the 'about' view:

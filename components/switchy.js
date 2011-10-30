@@ -325,6 +325,9 @@ const Switchy = {
         return win;
     },
 
+    profileService: function() {
+        return this._profileService;
+    },
 
     currentProfile: function() {
         return this._profileService.selectedProfile.name;
@@ -381,6 +384,40 @@ const Switchy = {
         }
 
         return names;
+    },
+
+    renameProfile: function(oldName, newName) {
+        var itr = this._profileService.profiles;
+        while(itr.hasMoreElements()) {
+            var profile = itr.getNext().QueryInterface(Components.interfaces.nsIToolkitProfile);
+            if (profile.name == oldName) {
+                try {
+                    profile.name = newName;
+                    this._profileService.flush();
+                } catch(e) {
+                    dump(e);
+                }
+
+                break;
+            }
+        }
+    },
+
+    deleteProfile: function(name, deleteFiles) {
+        var itr = this._profileService.profiles;
+        while(itr.hasMoreElements()) {
+            var profile = itr.getNext().QueryInterface(Components.interfaces.nsIToolkitProfile);
+            if (profile.name == name) {
+                try {
+                    profile.remove(deleteFiles);
+                    this._profileService.flush();
+                } catch(e) {
+                    dump(e);
+                }
+
+                break;
+            }
+        }
     },
 
     changeProfiles: function (url, profileArray, win) {

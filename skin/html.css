@@ -147,6 +147,13 @@ input[type=button]:hover {
 
 #profiles-list h2 {
   clear: left;
+  min-height: 40px;
+}
+
+#profiles-list h2 input[type=button] {
+  margin: 0 0 0 20px;
+  padding:0;
+  font-size: 16px;
 }
 
 #profiles-list ul {
@@ -159,7 +166,7 @@ input[type=button]:hover {
   margin-left:0;
   padding-bottom:10px;
   margin-bottom:10px;
-  height:120px;
+  height:80px;
   border-bottom:1px solid #eee;
   clear:left;
 }
@@ -170,7 +177,7 @@ input[type=button]:hover {
 
 #profiles-list ul li input[type=button] {
   margin:0;
-  padding:5px;
+  padding:0;
 }
 #profiles-list ul li span {
   margin-right:30px;
@@ -183,16 +190,18 @@ input[type=button]:hover {
   font-size: 15px;
   height: 30px;
   line-height: 30px;
+  margin-left:15px;
 }
 
 #profiles-list ul li h3 strong,
 #profiles-list ul li h3 span,
-#profiles-list ul li h3 input {
+#profiles-list ul li h3 input[type=text] {
   float:left;
   display:block;
+  width: auto;
 }
 
-#profiles-list ul li div.description {
+#profiles-list ul li table.description {
   float:left;
   clear:left;
   margin-left:15px;
@@ -203,4 +212,14 @@ input[type=button]:hover {
   float: left;
   clear:left;
   margin:5px 0;
+}
+
+.right {
+  float: right;
+}
+
+table {
+  width: 100%;
+  margin: 0px;
+  padding: 0px;
 }
