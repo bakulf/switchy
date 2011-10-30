@@ -182,25 +182,32 @@ var gSwitchyManagerAddUrl = {
         this._browser.contentDocument.getElementById('add-type-host').checked = true;
 
         // Populate the list of profiles:
-        var rows = this._browser.contentDocument.getElementById('profiles-list');
-        rows.innerHTML = ''; // Fastest way to remove all the content
+        var table = this._browser.contentDocument.getElementById('profiles-list');
+        table.innerHTML = ''; // Fastest way to remove all the content
 
         var switchy = Components.classes['@baku.switchy/switchy;1']
                                 .getService().wrappedJSObject;
         var profiles = switchy.getProfileNames();
 
+        var tr;
+
         for (var i = 0; i < profiles.length; ++i) {
-            var li = this._browser.contentDocument.createElement('li');
-            rows.appendChild(li);
+            if (i == 0 || !(i % 3)) {
+              tr = this._browser.contentDocument.createElement('tr');
+              table.appendChild(tr);
+            }
+
+            var td = this._browser.contentDocument.createElement('td');
+            tr.appendChild(td);
 
             var input = this._browser.contentDocument.createElement('input');
             input.setAttribute('type', 'checkbox');
             input.setAttribute('id', 'profile-' + profiles[i]);
-            li.appendChild(input);
+            td.appendChild(input);
 
             var label = this._browser.contentDocument.createElement('label');
             label.setAttribute('for', 'profile-' + profiles[i]);
-            li.appendChild(label);
+            td.appendChild(label);
 
             var text = this._browser.contentDocument.createTextNode(profiles[i]);
             label.appendChild(text);
