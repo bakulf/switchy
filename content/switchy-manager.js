@@ -261,6 +261,8 @@ var gSwitchyManagerProfiles = {
 
         let me = this;
 
+        var strbundle = document.getElementById("switchystrings");
+
         // Title:
         var title = this._browser.contentDocument.createElement('h2');
         title.appendChild(this._browser.contentDocument.createTextNode(profile));
@@ -270,7 +272,7 @@ var gSwitchyManagerProfiles = {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', 'delete');
+            button.setAttribute('value', strbundle.getString("delete"));
             title.appendChild(button);
 
             button.addEventListener('click', function() {
@@ -282,7 +284,7 @@ var gSwitchyManagerProfiles = {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', 'rename');
+            button.setAttribute('value', strbundle.getString("rename"));
             title.appendChild(button);
 
             button.addEventListener('click', function() {
@@ -304,7 +306,7 @@ var gSwitchyManagerProfiles = {
 
             var info;
             info = this._browser.contentDocument.createElement('strong');
-            info.appendChild(this._browser.contentDocument.createTextNode('URL'));
+            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString("url")));
             h3.appendChild(info);
 
             let urlInput = this._browser.contentDocument.createElement('input');
@@ -315,7 +317,7 @@ var gSwitchyManagerProfiles = {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', 'delete');
+            button.setAttribute('value', strbundle.getString("deleteUrl"));
             h3.appendChild(button);
 
             var table = this._browser.contentDocument.createElement('table');
@@ -330,7 +332,7 @@ var gSwitchyManagerProfiles = {
             tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
-            info.appendChild(this._browser.contentDocument.createTextNode('Type'));
+            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString("type")));
             td.appendChild(info);
 
             let select = this._browser.contentDocument.createElement('select');
@@ -338,7 +340,7 @@ var gSwitchyManagerProfiles = {
 
             var option;
             option = this._browser.contentDocument.createElement('option');
-            option.appendChild(this._browser.contentDocument.createTextNode('Complete'));
+            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('typeComplete')));
             if (data[i].typeString() == 'complete') option.setAttribute('selected', 'true');
             option.setAttribute('value', 'complete');
             select.appendChild(option);
@@ -346,26 +348,26 @@ var gSwitchyManagerProfiles = {
             option = this._browser.contentDocument.createElement('option');
             if (data[i].typeString() == 'path') option.setAttribute('selected', 'true');
             option.setAttribute('value', 'path');
-            option.appendChild(this._browser.contentDocument.createTextNode('Path'));
+            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('typePath')));
             select.appendChild(option);
 
             option = this._browser.contentDocument.createElement('option');
             if (data[i].typeString() == 'host') option.setAttribute('selected', 'true');
             option.setAttribute('value', 'host');
-            option.appendChild(this._browser.contentDocument.createTextNode('Host'));
+            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('typeHost')));
             select.appendChild(option);
 
             option = this._browser.contentDocument.createElement('option');
             if (data[i].typeString() == 'domain') option.setAttribute('selected', 'true');
             option.setAttribute('value', 'domain');
-            option.appendChild(this._browser.contentDocument.createTextNode('Domain'));
+            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('typeDomain')));
             select.appendChild(option);
 
             td = this._browser.contentDocument.createElement('td');
             tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
-            info.appendChild(this._browser.contentDocument.createTextNode('On Startup'));
+            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('onStartup')));
             td.appendChild(info);
 
             let startup = this._browser.contentDocument.createElement('input');
@@ -377,7 +379,7 @@ var gSwitchyManagerProfiles = {
             tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
-            info.appendChild(this._browser.contentDocument.createTextNode('Exclusive'));
+            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('exclusive')));
             td.appendChild(info);
 
             let exclusive = this._browser.contentDocument.createElement('input');
@@ -420,23 +422,23 @@ var gSwitchyManagerProfiles = {
     deleteProfile: function(profile) {
         var deleteFiles = false;
 
+        var strbundle = document.getElementById("switchystrings");
+
         var switchy = Components.classes['@baku.switchy/switchy;1']
                                 .getService().wrappedJSObject;
         var selectedProfile = switchy.profileService().selectedProfile;
         if (selectedProfile.rootDir.exists()) {
-            var msg = 'Deleting a profile will remove the profile from the list of available profiles and cannot be undone.\n' +
-                      'You may also choose to delete the profile data files, including your settings, certificates and other user-related data. This option will delete the folder "' + selectedProfile.rootDir.path + '" and cannot be undone.\n' +
-                      'Would you like to delete the profile data files?';
+            var msg = strbundle.getFormattedString('deleteProfileConfirm', [selectedProfile.rootDir.path]);
 
             this.needPrompt();
 
-            var buttonPressed = this._prompt.confirmEx(window, 'Deleting a profile...', msg,
+            var buttonPressed = this._prompt.confirmEx(window, strbundle.getString('deleteProfileTitle'), msg,
                           (this._prompt.BUTTON_TITLE_IS_STRING * this._prompt.BUTTON_POS_0) +
                           (this._prompt.BUTTON_TITLE_CANCEL    * this._prompt.BUTTON_POS_1) +
                           (this._prompt.BUTTON_TITLE_IS_STRING * this._prompt.BUTTON_POS_2),
-                          'Don\'t Delete Files',
+                          strbundle.getString('deleteProfileDoNot'),
                           null,
-                          'Delete Files',
+                          strbundle.getString('deleteProfileDo'),
                           null, {value:0});
             if (buttonPressed == 1)
                 return false;
@@ -452,10 +454,12 @@ var gSwitchyManagerProfiles = {
     renameProfile: function(profile) {
         this.needPrompt();
 
-        var newName = {value: profile};
-        var msg = "Rename the profile '" + profile + "' to...";
+        var strbundle = document.getElementById("switchystrings");
 
-        if (this._prompt.prompt(window, "Renaming profile...", msg, newName, null, {value:0})) {
+        var newName = {value: profile};
+        var msg = strbundle.getFormattedString('renameProfile', [profile]);
+
+        if (this._prompt.prompt(window, strbundle.getString('renameProfileTitle'), msg, newName, null, {value:0})) {
             newName = newName.value;
 
             // User hasn't changed the profile name. Treat as if cancel was pressed.
@@ -522,6 +526,14 @@ var gSwitchyManagerProfiles = {
         this._timer.initWithCallback(eventTimeout, 3000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
     },
 
+    populateAlerts: function() {
+        var strbundle = document.getElementById("switchystrings");
+        this._browser.contentDocument.getElementById('alert-url-added').innerHTML = strbundle.getString('alertAdded');
+        this._browser.contentDocument.getElementById('alert-url-saved').innerHTML = strbundle.getString('alertSaved');
+        this._browser.contentDocument.getElementById('alert-url-error').innerHTML = strbundle.getString('alertError');
+        this._browser.contentDocument.getElementById('alert-wait').innerHTML = strbundle.getString('alertWait');
+    },
+
     // For progress listener
     onLocationChange: function(aWebProgress, aRequest, aLocation) { },
 
@@ -539,6 +551,7 @@ var gSwitchyManagerProfiles = {
             return;
 
         // Alert:
+        this.populateAlerts();
         this.disableAlerts();
         if (this._alert) {
             this.showAlert(this._alert);

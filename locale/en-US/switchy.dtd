@@ -1,0 +1,15 @@
+<!ENTITY Title "Switchy">
+<!ENTITY TitleManager "Switchy Manager">
+<!ENTITY Tooltip "Choose your profile">
+<!ENTITY CurrentProfile "Current profile:">
+<!ENTITY AddWebsite "Add this website to a profile...">
+<!ENTITY Manager "Manager">
+<!ENTITY About "About...">
+<!ENTITY AddWebsitesPage "Add new websites">
+<!ENTITY AddWebsitesTooltip "Add a new website to profiles">
+<!ENTITY ProfilesPage "Profiles">
+<!ENTITY ProfilesTooltip "Manage your profiles">
+<!ENTITY AboutPage "About">
+<!ENTITY AboutTooltip "About Switchy">
+<!ENTITY ProfilesTitle "Choose a profile...">
+<!ENTITY Close "Close">

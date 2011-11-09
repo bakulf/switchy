@@ -3,18 +3,25 @@
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://switchy/skin/manager.css"?>
 
+<!DOCTYPE overlay SYSTEM "chrome://switchy/locale/switchy.dtd">
+
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:xhtml="http://www.w3.org/1999/xhtml"
       onload="switchy_manager_initialize();"
       onunload="switchy_manager_shutdown();"
       id="switchy-page"
-      title="Switchy Manager"
+      title="&TitleManager;"
       role="application"
       disablechrome="true"
       disablefastfind="true">
 
   <script type="application/javascript;version=1.7" src="switchy.js" />
   <script type="application/javascript;version=1.7" src="switchy-manager.js" />
+
+  <!-- Localization -->
+  <stringbundleset id="switchystrbundles">
+    <stringbundle id="switchystrings" src="chrome://switchy/locale/strings.properties"/>
+  </stringbundleset>
 
   <xhtml:link rel="shortcut icon"
               href="chrome://switchy/skin/icon_big.png" />
@@ -26,16 +33,16 @@
     <richlistbox id="categories" persist="last-selected">
       <richlistitem id="category-add"
                     class="category"
-                    name="Add new websites"
-                    tooltiptext="Add a new website to profiles"/>
+                    name="&AddWebsitesPage;"
+                    tooltiptext="&AddWebsitesTooltip;" />
       <richlistitem id="category-profiles"
                     class="category"
-                    name="Profiles"
-                    tooltiptext="Manage your profiles"/>
+                    name="&ProfilesPage;"
+                    tooltiptext="&ProfilesTooltip;" />
       <richlistitem id="category-about"
                     class="category"
-                    name="About"
-                    tooltiptext="About Switchy"/>
+                    name="&AboutPage;"
+                    tooltiptext="&AboutTooltip;" />
     </richlistbox>
 
     <box id="view-port-container" flex="1">

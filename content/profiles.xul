@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
+<!DOCTYPE overlay SYSTEM "chrome://switchy/locale/switchy.dtd">
+
 <window class="dialog"
-    title="Choose a profile..."
+    title="&ProfilesTitle;"
     orient="vertical"
     autostretch="always"
     onload="switchy_profileListUpdate(); sizeToContent();"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script type="application/javascript;version=1.7" src="switchy.js" />
+  <script type="application/javascript;version=1.7" src="switchy.js" />
 
-    <listbox id="switchy-list-rows" />
+  <!-- Localization -->
+  <stringbundleset id="switchystrbundles">
+    <stringbundle id="switchystrings" src="chrome://switchy/locale/strings.properties"/>
+  </stringbundleset>
 
-    <hbox>
-        <spacer flex="1"/>
-        <button label="Close" oncommand="window.close();"/>
-    </hbox>
+  <listbox id="switchy-list-rows" />
+
+  <hbox>
+      <spacer flex="1"/>
+      <button label="&Close;" oncommand="window.close();"/>
+  </hbox>
 
 </window>

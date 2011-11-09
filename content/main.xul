@@ -2,46 +2,52 @@
 
 <?xml-stylesheet href="chrome://switchy/skin/main.css" type="text/css"?>
 
+<!DOCTYPE overlay SYSTEM "chrome://switchy/locale/switchy.dtd">
+
 <overlay id="profile-overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script type="application/javascript;version=1.7" src="switchy-manager.js" />
-    <script type="application/javascript;version=1.7" src="switchy.js" />
+  <script type="application/javascript;version=1.7" src="switchy-manager.js" />
+  <script type="application/javascript;version=1.7" src="switchy.js" />
 
-    <toolbarpalette id="BrowserToolbarPalette">
-        <toolbarbutton id="switchy-toolbarbutton"
-                       insertbefore="print-button"
-                       class="toolbarbutton-1 chromeclass-toolbar-additional"
-                       tooltiptext="Choose your profile"
-                       label="Switchy"
-                       type="menu"
-                       orient="horizontal">
-            <panel id="switchy-panel"
-                   noautofocus="true"
-                   position="after_start"
-                   ignorekeys="true"
-                   orient="vertical"
-                   onpopupshown="switchy_panelOpen();" >
+  <!-- Localization -->
+  <stringbundleset id="switchystrbundles">
+    <stringbundle id="switchystrings" src="chrome://switchy/locale/strings.properties"/>
+  </stringbundleset>
 
-                <hbox>
-                  <label value="Current profile:" />
-                  <label value="" id="switchy-current-profile" />
-                </hbox>
+  <toolbarpalette id="BrowserToolbarPalette">
+      <toolbarbutton id="switchy-toolbarbutton"
+                     insertbefore="print-button"
+                     tooltiptext="&Tooltip;"
+                     label="&Title;"
+                     type="menu"
+                     orient="horizontal">
+        <panel id="switchy-panel"
+               noautofocus="true"
+               position="after_start"
+               ignorekeys="true"
+               orient="vertical"
+               onpopupshown="switchy_panelOpen();" >
 
-                <listbox id="switchy-panel-rows">
-                </listbox>
+          <hbox>
+            <label value="&CurrentProfile;" />
+            <label value="" id="switchy-current-profile" />
+          </hbox>
 
-                <button label="Add this website to a profile..."
-                        oncommand="switchy_add();" />
+          <listbox id="switchy-panel-rows">
+          </listbox>
 
-                <button label="Manager"
-                        oncommand="switchy_panelManager();" />
+          <button label="&AddWebsite;"
+                  oncommand="switchy_add();" />
 
-                <button label="About..."
-                        oncommand="switchy_about();" />
-            </panel>
+          <button label="&Manager;"
+                  oncommand="switchy_panelManager();" />
 
-        </toolbarbutton>
-    </toolbarpalette>
+          <button label="&About;"
+                  oncommand="switchy_about();" />
+        </panel>
+
+      </toolbarbutton>
+  </toolbarpalette>
 
 </overlay>

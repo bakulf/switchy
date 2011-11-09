@@ -6,6 +6,8 @@ overlay	chrome://global/content/customizeToolbar.xul	chrome://switchy/content/ma
 
 style chrome://global/content/customizeToolbar.xul      chrome://switchy/skin/main.css
 
+locale    switchy  en-US         locale/en-US/
+
 component {5db0fd9e-3184-4451-b668-744349ab1e9d} components/switchy.js
 contract @baku.switchy/switchyStartup;1 {5db0fd9e-3184-4451-b668-744349ab1e9d}
 category profile-after-change @baku.switchy/switchyStartup;1 @baku.switchy/switchyStartup;1
