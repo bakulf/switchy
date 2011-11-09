@@ -58,7 +58,7 @@ function switchy_panelOpen() {
 
             let row = document.createElement('listitem');
             row.setAttribute('label', profiles[i]);
-            row.addEventListener('click', function() { switchy_panelSelected(row); });
+            row.addEventListener('click', function() { switchy_panelSelected(row); }, false);
             rows.appendChild(row);
         }
     }
@@ -180,7 +180,7 @@ function switchy_profileListUpdate() {
     for (var i = 0; i < data.profiles.length; ++i) {
         let row = document.createElement('listitem');
         row.setAttribute('label', data.profiles[i]);
-        row.addEventListener('click', function() { switchy_profileListSelected(row); });
+        row.addEventListener('click', function() { switchy_profileListSelected(row); }, false);
         rows.appendChild(row);
     }
 
