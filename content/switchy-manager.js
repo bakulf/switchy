@@ -292,6 +292,18 @@ var gSwitchyManagerProfiles = {
             }, false);
         }
 
+        {
+            var button = this._browser.contentDocument.createElement('input');
+            button.setAttribute('class', 'right');
+            button.setAttribute('type', 'button');
+            button.setAttribute('value', strbundle.getString("open"));
+            title.appendChild(button);
+
+            button.addEventListener('click', function() {
+                me.openProfile(profile);
+            }, false);
+        }
+
         var obj = this._browser.contentDocument.createElement('ul');
         dom.appendChild(obj);
 
@@ -449,6 +461,12 @@ var gSwitchyManagerProfiles = {
 
         switchy.deleteProfile(profile, deleteFiles);
         this.show();
+    },
+
+    openProfile: function(profile) {
+        var switchy = Components.classes['@baku.switchy/switchy;1']
+                                .getService().wrappedJSObject;
+        switchy.changeProfile(profile);
     },
 
     renameProfile: function(profile) {
