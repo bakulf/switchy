@@ -243,7 +243,7 @@ var SwitchyManagerProfiles = {
         } catch(e) { }
     },
 
-    createElementProfile: function(switchy, dom, profile) {
+    createElementProfile: function(dom, profile) {
 
         let me = this;
 
@@ -254,6 +254,8 @@ var SwitchyManagerProfiles = {
         title.appendChild(this._browser.contentDocument.createTextNode(profile));
         dom.appendChild(title);
 
+        // No 'delete' for the current profile:
+        if (switchy.currentProfile() != profile)
         {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
@@ -576,7 +578,7 @@ var SwitchyManagerProfiles = {
 
         var profiles = switchy.getProfileNames();
         for (var i = 0; i < profiles.length; ++i) {
-            this.createElementProfile(switchy, dom, profiles[i]);
+            this.createElementProfile(dom, profiles[i]);
         }
     },
 

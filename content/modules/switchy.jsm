@@ -319,6 +319,7 @@ const switchy = {
             names.push(profile.name);
         }
 
+        names.sort();
         return names;
     },
 
