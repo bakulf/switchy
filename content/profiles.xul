@@ -8,7 +8,7 @@
     title="&ProfilesTitle;"
     orient="vertical"
     autostretch="always"
-    onload="switchy_profileListUpdate(); sizeToContent();"
+    onload="SwitchyOverlay.profileListUpdate(); sizeToContent();"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/javascript;version=1.7" src="switchy.js" />

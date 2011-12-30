@@ -27,7 +27,7 @@
                position="after_start"
                ignorekeys="true"
                orient="vertical"
-               onpopupshown="switchy_panelOpen();" >
+               onpopupshown="SwitchyOverlay.panelOpen();" >
 
           <hbox>
             <label value="&CurrentProfile;" />
@@ -38,13 +38,13 @@
           </listbox>
 
           <button label="&AddWebsite;"
-                  oncommand="switchy_add();" />
+                  oncommand="SwitchyOverlay.add();" />
 
           <button label="&Manager;"
-                  oncommand="switchy_panelManager();" />
+                  oncommand="SwitchyOverlay.panelManager();" />
 
           <button label="&About;"
-                  oncommand="switchy_about();" />
+                  oncommand="SwitchyOverlay.about();" />
         </panel>
 
       </toolbarbutton>

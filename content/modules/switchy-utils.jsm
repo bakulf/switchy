@@ -2,6 +2,8 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 
+var EXPORTED_SYMBOLS = ["SwitchyUtils"];
+
 function SwitchyUtils() {}
 
 SwitchyUtils.openUrl = function(win, url) {

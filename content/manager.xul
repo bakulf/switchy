@@ -7,8 +7,8 @@
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
       xmlns:xhtml="http://www.w3.org/1999/xhtml"
-      onload="switchy_manager_initialize();"
-      onunload="switchy_manager_shutdown();"
+      onload="SwitchyManager.initialize();"
+      onunload="SwitchyManager.shutdown();"
       id="switchy-page"
       title="&TitleManager;"
       role="application"

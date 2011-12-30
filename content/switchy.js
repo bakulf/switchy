@@ -1,16 +1,10 @@
 /* See license.txt for terms of usage */
 
 Components.utils.import("resource://gre/modules/Services.jsm");
-
-const SWITCHY_PROFILES = "profiles";
-const SWITCHY_ADD      = "add";
-const SWITCHY_ABOUT    = "about";
+Components.utils.import("chrome://switchy/content/modules/switchy.jsm");
 
 // Generic load for any window:
 window.addEventListener("load", function() {
-    var switchy = Components.classes['@baku.switchy/switchy;1']
-                            .getService().wrappedJSObject;
-
     var appcontent = document.getElementById("appcontent");
     if(appcontent) {
         appcontent.addEventListener("DOMContentLoaded", function(evnt) {
@@ -26,12 +20,18 @@ window.addEventListener("load", function() {
     }
 
     if (switchy.firstRun()) {
-        switchy_addIcon();
+        SwitchyOverlay.addIcon();
     }
 }, false);
 
+function SwitchyOverlay() {}
+
+SwitchyOverlay.SWITCHY_PROFILES = "profiles";
+SwitchyOverlay.SWITCHY_ADD      = "add";
+SwitchyOverlay.SWITCHY_ABOUT    = "about";
+
 // Add the icon to the navBar
-function switchy_addIcon() {
+SwitchyOverlay.addIcon = function() {
     var icon   = "switchy-toolbarbutton";
     var navBar = document.getElementById("nav-bar") || document.getElementById("addon-bar");
     var obj    = document.getElementById(icon);
@@ -42,13 +42,11 @@ function switchy_addIcon() {
 }
 
 // Populate the panel:
-function switchy_panelOpen() {
+SwitchyOverlay.panelOpen = function() {
     var rows = document.getElementById('switchy-panel-rows');
     while(rows.firstChild)
        rows.removeChild(rows.firstChild);
 
-    var switchy = Components.classes['@baku.switchy/switchy;1']
-                            .getService().wrappedJSObject;
     var profiles = switchy.getProfileNames();
     var count = 0;
 
@@ -58,7 +56,7 @@ function switchy_panelOpen() {
 
             let row = document.createElement('listitem');
             row.setAttribute('label', profiles[i]);
-            row.addEventListener('click', function() { switchy_panelSelected(row); }, false);
+            row.addEventListener('click', function() { SwitchyOverlay._panelSelected(row); }, false);
             rows.appendChild(row);
         }
     }
@@ -71,18 +69,15 @@ function switchy_panelOpen() {
 }
 
 // Manage the click on a profile
-function switchy_panelSelected(obj) {
-    var switchy = Components.classes['@baku.switchy/switchy;1']
-                            .getService().wrappedJSObject;
+SwitchyOverlay._panelSelected = function(obj) {
     switchy.changeProfile(obj.label);
-
     document.getElementById('switchy-panel').hidePopup();
 }
 
 // Open the manager
-function switchy_panelManager(page, newUrlObj) {
+SwitchyOverlay.panelManager = function(page, newUrlObj) {
     if (!page)
-        page = SWITCHY_PROFILES
+        page = SwitchyOverlay.SWITCHY_PROFILES;
 
     document.getElementById('switchy-panel').hidePopup();
 
@@ -91,8 +86,8 @@ function switchy_panelManager(page, newUrlObj) {
     var isBrowserWindow = !!window.gBrowser;
 
     // Prioritise this window.
-    if (isBrowserWindow && switchy_switchIfURIInWindow(window, URI)) {
-        switchy_panelManagerPageNoWin(page, newUrlObj);
+    if (isBrowserWindow && SwitchyOverlay._switchIfURIInWindow(window, URI)) {
+        SwitchyOverlay._panelManagerPageNoWin(page, newUrlObj);
         return;
     }
 
@@ -105,26 +100,45 @@ function switchy_panelManager(page, newUrlObj) {
         if (browserWin.closed || browserWin == window)
             continue;
 
-        if (switchy_switchIfURIInWindow(browserWin, URI)) {
-            switchy_panelManagerPageNoWin(page, newUrlObj);
+        if (SwitchyOverlay._switchIfURIInWindow(browserWin, URI)) {
+            SwitchyOverlay._panelManagerPageNoWin(page, newUrlObj);
             return;
         }
     }
 
-    if (isBrowserWindow && switchy_isTabEmpty(gBrowser.selectedTab))
+    if (isBrowserWindow && SwitchyOverlay._isTabEmpty(gBrowser.selectedTab))
         gBrowser.selectedBrowser.loadURI(URI.spec);
     else
         openUILinkIn(URI.spec, "tab");
 
     Services.obs.addObserver(function (aSubject, aTopic, aData) {
         Services.obs.removeObserver(arguments.callee, aTopic);
-        switchy_panelManagerPage(aSubject, page, newUrlObj);
+        SwitchyOverlay._panelManagerPage(aSubject, page, newUrlObj);
     }, "Switchy-manager-loaded", false);
 }
 
-function switchy_panelManagerPageNoWin(page, newUrlObj) {
+// Add wizard:
+SwitchyOverlay.add = function() {
+    var win = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIWebNavigation)
+                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                    .rootTreeItem
+                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                    .getInterface(Components.interfaces.nsIDOMWindow);
+
+    SwitchyOverlay.panelManager( SwitchyOverlay.SWITCHY_ADD,
+                                 { url:   win.getBrowser().currentURI.spec,
+                                   title: win.getBrowser().contentTitle } );
+}
+
+// Open the about:
+SwitchyOverlay.about = function() {
+    SwitchyOverlay.panelManager(SwitchyOverlay.SWITCHY_ABOUT);
+}
+
+SwitchyOverlay._panelManagerPageNoWin = function(page, newUrlObj) {
     function receivePong(aSubject, aTopic, aData) {
-        switchy_panelManagerPage(aSubject, page, newUrlObj);
+        SwitchyOverlay._panelManagerPage(aSubject, page, newUrlObj);
     }
 
     Services.obs.addObserver(receivePong, "Switchy-manager-pong", false);
@@ -132,20 +146,19 @@ function switchy_panelManagerPageNoWin(page, newUrlObj) {
     Services.obs.removeObserver(receivePong, "Switchy-manager-pong");
 }
 
-function switchy_panelManagerPage(win, page, newUrlObj) {
-    if (page == SWITCHY_ADD)
-       win.addURL(newUrlObj);
+SwitchyOverlay._panelManagerPage = function(win, page, newUrlObj) {
+    if (page == SwitchyOverlay.SWITCHY_ADD)
+       SwitchyManager.addURL(newUrlObj);
 
-    if (page == SWITCHY_ABOUT)
-        win.pageAbout();
+    if (page == SwitchyOverlay.SWITCHY_ABOUT)
+        SwitchyManager.pageAbout();
 
-    if (page == SWITCHY_PROFILES) {
-        win.pageProfiles();
-}
+    if (page == SwitchyOverlay.SWITCHY_PROFILES)
+        SwitchyManager.pageProfiles();
 }
 
 // This will switch to the tab in aWindow having aURI, if present.
-function switchy_switchIfURIInWindow(aWindow, aURI) {
+SwitchyOverlay._switchIfURIInWindow = function(aWindow, aURI) {
     var browsers = aWindow.gBrowser.browsers;
     for (var i = 0; i < browsers.length; ++i) {
         var browser = browsers[i];
@@ -163,7 +176,7 @@ function switchy_switchIfURIInWindow(aWindow, aURI) {
  * Determines if a tab is "empty", usually used in the context of determining
  * if it's ok to close the tab.
  */
-function switchy_isTabEmpty(aTab) {
+SwitchyOverlay._isTabEmpty = function(aTab) {
     var browser = aTab.linkedBrowser;
     return browser.sessionHistory.count < 2 &&
            browser.currentURI.spec == "about:blank" &&
@@ -172,7 +185,7 @@ function switchy_isTabEmpty(aTab) {
 }
 
 // Update the panel for the dialog:
-function switchy_profileListUpdate() {
+SwitchyOverlay.profileListUpdate = function() {
     var data = window.arguments[0];
 
     var rows = document.getElementById('switchy-list-rows');
@@ -180,7 +193,7 @@ function switchy_profileListUpdate() {
     for (var i = 0; i < data.profiles.length; ++i) {
         let row = document.createElement('listitem');
         row.setAttribute('label', data.profiles[i]);
-        row.addEventListener('click', function() { switchy_profileListSelected(row); }, false);
+        row.addEventListener('click', function() { SwitchyOverlay._profileListSelected(row); }, false);
         rows.appendChild(row);
     }
 
@@ -188,21 +201,13 @@ function switchy_profileListUpdate() {
 }
 
 // callback when a profile is chosen
-function switchy_profileListSelected(obj) {
+SwitchyOverlay._profileListSelected = function(obj) {
     var data = window.arguments[0];
-
-    var switchy = Components.classes['@baku.switchy/switchy;1']
-                            .getService().wrappedJSObject;
     switchy.changeProfile(obj.label, data.url);
 }
 
-// Open the about:
-function switchy_about() {
-    switchy_panelManager(SWITCHY_ABOUT);
-}
-
 // Configure the manager window:
-function switchy_managerLoad() {
+SwitchyOverlay.managerLoad = function() {
     var win = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
                     .getInterface(Components.interfaces.nsIWebNavigation)
                     .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -219,18 +224,4 @@ function switchy_managerLoad() {
     try {
         win.top.XULBrowserWindow.inContentWhitelist.push('chrome://switchy/content/manager.xul');
     } catch(e) {}
-}
-
-// Add wizard:
-function switchy_add() {
-    var win = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIWebNavigation)
-                    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-                    .rootTreeItem
-                    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                    .getInterface(Components.interfaces.nsIDOMWindow);
-
-    switchy_panelManager( SWITCHY_ADD,
-                          { url:   win.getBrowser().currentURI.spec,
-                            title: win.getBrowser().contentTitle } );
 }

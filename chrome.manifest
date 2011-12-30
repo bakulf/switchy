@@ -11,7 +11,3 @@ locale    switchy  en-US         locale/en-US/
 component {5db0fd9e-3184-4451-b668-744349ab1e9d} components/switchy.js
 contract @baku.switchy/switchyStartup;1 {5db0fd9e-3184-4451-b668-744349ab1e9d}
 category profile-after-change @baku.switchy/switchyStartup;1 @baku.switchy/switchyStartup;1
-
-component {1810dfbe-8d2e-4ce4-bd51-ffd3a5a6da67} components/switchy.js
-contract @baku.switchy/switchy;1 {1810dfbe-8d2e-4ce4-bd51-ffd3a5a6da67}
-category profile-after-change @baku.switchy/switchy;1 @baku.switchy/switchy;1
