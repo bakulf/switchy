@@ -27,6 +27,12 @@ var SwitchyManagerAddUrl = {
     },
 
     shutdown: function() {
+        this._data = null;
+        this._browser = null;
+        this._timer = null;
+
+        this._document = null;
+        this._window = null;
     },
 
     show: function() {
@@ -230,6 +236,13 @@ var SwitchyManagerProfiles = {
     },
 
     shutdown: function() {
+        this._browser = null;
+        this._alert = null;
+        this._timer = null;
+        this._prompt = null;
+
+        this._document = null;
+        this._window = null;
     },
 
     show: function() {
@@ -603,6 +616,10 @@ var SwitchyManagerAbout = {
     },
 
     shutdown: function() {
+        this._browser = null;
+
+        this._document = null;
+        this._window = null;
     },
 
     show: function() {
