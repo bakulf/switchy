@@ -2,6 +2,7 @@
 
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("chrome://switchy/content/modules/switchy.jsm");
+Components.utils.import("chrome://switchy/content/modules/switchy-manager.jsm");
 
 // Generic load for any window:
 window.addEventListener("load", function() {
@@ -147,14 +148,17 @@ SwitchyOverlay._panelManagerPageNoWin = function(page, newUrlObj) {
 }
 
 SwitchyOverlay._panelManagerPage = function(win, page, newUrlObj) {
+    if (!win.switchyManagerData)
+        return;
+
     if (page == SwitchyOverlay.SWITCHY_ADD)
-       SwitchyManager.addURL(newUrlObj);
+       win.switchyManagerData.addURL(newUrlObj);
 
     if (page == SwitchyOverlay.SWITCHY_ABOUT)
-        SwitchyManager.pageAbout();
+        win.switchyManagerData.pageAbout();
 
     if (page == SwitchyOverlay.SWITCHY_PROFILES)
-        SwitchyManager.pageProfiles();
+        win.switchyManagerData.pageProfiles();
 }
 
 // This will switch to the tab in aWindow having aURI, if present.

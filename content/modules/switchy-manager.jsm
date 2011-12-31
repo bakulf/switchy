@@ -9,7 +9,11 @@ var EXPORTED_SYMBOLS = ["SwitchyManagerData"];
 // Objects -------------------------------------------------------------------
 
 // Object for the 'add URL' view:
-var SwitchyManagerAddUrl = {
+function SwitchyManagerAddUrl(window, document) {
+    this.initialize(window, document);
+}
+
+SwitchyManagerAddUrl.prototype = {
     _data: null,
     _browser: null,
     _timer: null,
@@ -17,9 +21,9 @@ var SwitchyManagerAddUrl = {
     _document: null,
     _window: null,
 
-    initialize: function(document, window) {
-        this._document = document;
+    initialize: function(window, document) {
         this._window = window;
+        this._document = document;
 
         this._browser = this._document.getElementById('add-browser');
         this._browser.addProgressListener(this, Components.interfaces.nsIWebProgress.NOTIFY_ALL |
@@ -105,15 +109,8 @@ var SwitchyManagerAddUrl = {
         let me = this;
         switchy.addURL(null, url, type, listProfiles, onStartup, exclusive, function(state) {
             // Change Page:
-            if (state == true) {
-                for (var i = 0; i < SwitchyManagerData.pages.length; ++i) {
-                    if ('pageProfiles' == SwitchyManagerData.pages[i].funcName) {
-                        SwitchyManagerData.pages[i].obj.setData(['alert-url-added']);
-                        SwitchyManagerData.node.selectItem(SwitchyManagerData.document.getElementById(SwitchyManagerData.pages[i].id));
-                        break;
-                    }
-                }
-            }
+            if (state == true && me._window.switchyManagerData)
+                me._window.switchyManagerData.pageProfiles('alert-url-added');
             else
                 me.showAlert('alert-error');
         });
@@ -217,7 +214,11 @@ var SwitchyManagerAddUrl = {
 };
 
 // Object for the 'profiles list' view:
-var SwitchyManagerProfiles = {
+function SwitchyManagerProfiles(window, document) {
+    this.initialize(window, document);
+}
+
+SwitchyManagerProfiles.prototype = {
     _browser: null,
     _alert: null,
     _timer: null,
@@ -226,9 +227,9 @@ var SwitchyManagerProfiles = {
     _document: null,
     _window: null,
 
-    initialize: function(document, window) {
-        this._document = document;
+    initialize: function(window, document) {
         this._window = window;
+        this._document = document;
 
         this._browser = this._document.getElementById('profiles-browser');
         this._browser.addProgressListener(this, Components.interfaces.nsIWebProgress.NOTIFY_ALL |
@@ -602,15 +603,19 @@ var SwitchyManagerProfiles = {
 };
 
 // Object for the 'about' view:
-var SwitchyManagerAbout = {
+function SwitchyManagerAbout(window, document) {
+    this.initialize(window, document);
+}
+
+SwitchyManagerAbout.prototype = {
     _browser: null,
 
     _document: null,
     _window: null,
 
-    initialize: function(document, window) {
-        this._document = document;
+    initialize: function(window, document) {
         this._window = window;
+        this._document = document;
 
         this._browser = this._document.getElementById('about-browser');
     },
@@ -632,13 +637,63 @@ var SwitchyManagerAbout = {
     }
 };
 
-var SwitchyManagerData = {
+// Object data
+function SwitchyManagerData(window, document) {
+    this.initialize(window, document);
+}
+
+SwitchyManagerData.prototype = {
     document : null,
 
     node : null,
+    pages : null,
 
-    pages : [
-        { funcName: 'addURL',       id: 'category-add',      page_id: 'add-view',      obj: SwitchyManagerAddUrl   },
-        { funcName: 'pageProfiles', id: 'category-profiles', page_id: 'profiles-view', obj: SwitchyManagerProfiles },
-        { funcName: 'pageAbout',    id: 'category-about',    page_id: 'about-view',    obj: SwitchyManagerAbout    } ]
+    initialize : function(window, document) {
+        this.document = document;
+
+        this.node = document.getElementById("categories");
+        this.pages = [
+            { funcName: 'addURL',       id: 'category-add',      page_id: 'add-view',      obj: new SwitchyManagerAddUrl(window, document)   },
+            { funcName: 'pageProfiles', id: 'category-profiles', page_id: 'profiles-view', obj: new SwitchyManagerProfiles(window, document) },
+            { funcName: 'pageAbout',    id: 'category-about',    page_id: 'about-view',    obj: new SwitchyManagerAbout(window, document)    }
+        ];
+
+        // Event listener:
+        var me = this;
+        this.node.addEventListener("select", function() { me._pageSelected(); }, false);
+
+        // Select a view:
+        this.node.selectItem(document.getElementById(this.pages[0].id));
+        this._pageSelected();
+    },
+
+    shutdown : function() {
+        // Shutdown any object:
+        for (var i = 0; i < this.pages.length; ++i) {
+            this.pages[i].obj.shutdown();
+        }
+
+        this.document = null;
+    },
+
+    _pageSelected : function() {
+        for (var i = 0; i < this.pages.length; ++i) {
+            if (this.pages[i].id == this.node.selectedItem.id) {
+                this.document.getElementById(this.pages[i].page_id).hidden = false;
+                this.pages[i].obj.show();
+            } else {
+                this.document.getElementById(this.pages[i].page_id).hidden = true;
+            }
+        }
+    },
+
+    __noSuchMethod__ : function(id, args) {
+        for (var i = 0; i < this.pages.length; ++i) {
+            if (id == this.pages[i].funcName) {
+                this.pages[i].obj.setData(args);
+                this.node.selectItem(this.document.getElementById(this.pages[i].id));
+                break;
+            }
+        }
+    }
 };
