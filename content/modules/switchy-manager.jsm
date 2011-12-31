@@ -12,7 +12,6 @@ var EXPORTED_SYMBOLS = ["SwitchyManagerData"];
 function SwitchyManagerAddUrl(window, document) {
     this.initialize(window, document);
 }
-
 SwitchyManagerAddUrl.prototype = {
     _data: null,
     _browser: null,
@@ -217,7 +216,6 @@ SwitchyManagerAddUrl.prototype = {
 function SwitchyManagerProfiles(window, document) {
     this.initialize(window, document);
 }
-
 SwitchyManagerProfiles.prototype = {
     _browser: null,
     _alert: null,
@@ -606,7 +604,6 @@ SwitchyManagerProfiles.prototype = {
 function SwitchyManagerAbout(window, document) {
     this.initialize(window, document);
 }
-
 SwitchyManagerAbout.prototype = {
     _browser: null,
 
@@ -641,7 +638,6 @@ SwitchyManagerAbout.prototype = {
 function SwitchyManagerData(window, document) {
     this.initialize(window, document);
 }
-
 SwitchyManagerData.prototype = {
     document : null,
 
