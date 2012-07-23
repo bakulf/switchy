@@ -462,7 +462,7 @@ SwitchyManagerProfiles.prototype = {
     },
 
     openProfile: function(profile) {
-        switchy.changeProfile(profile);
+        switchy.changeProfile(this._window, profile);
     },
 
     renameProfile: function(profile) {
@@ -600,6 +600,100 @@ SwitchyManagerProfiles.prototype = {
                                            Components.interfaces.nsISupportsWeakReference])
 };
 
+// Object for the 'settings' view:
+function SwitchyManagerSettings(window, document) {
+    this.initialize(window, document);
+}
+SwitchyManagerSettings.prototype = {
+    _browser: null,
+
+    _document: null,
+    _window: null,
+
+    initialize: function(window, document) {
+        this._window = window;
+        this._document = document;
+
+        this._browser = this._document.getElementById('settings-browser');
+        this._browser.addProgressListener(this, Components.interfaces.nsIWebProgress.NOTIFY_ALL |
+                                                Components.interfaces.nsIWebProgress.NOTIFY_STATE_ALL);
+    },
+
+    shutdown: function() {
+        this._browser = null;
+
+        this._document = null;
+        this._window = null;
+    },
+
+    show: function() {
+        this._browser.loadURIWithFlags('chrome://switchy/content/manager/settings.html',
+                                       Components.interfaces.nsIWebNavigation.LOAD_FLAGS_REPLACE_HISTORY);
+    },
+
+    setData: function(args) {
+        // No data for the settings
+    },
+
+    // For progress listener
+    onLocationChange: function(aWebProgress, aRequest, aLocation) { },
+
+    onProgressChange: function() { },
+
+    onSecurityChange: function(aWebProgress, aRequest, aState) { },
+
+    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+        // Don't care about state but window
+        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)))
+            return;
+
+        // Only when the operation is concluded
+        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
+            return;
+
+        switch (switchy.getPrefs('closeCurrentProfile')) {
+            case 'yes':
+                 this._browser.contentDocument.getElementById('cc_yes').checked = true;
+                 break;
+
+            case 'no':
+                 this._browser.contentDocument.getElementById('cc_no').checked = true;
+                 break;
+
+            case 'ask':
+                 this._browser.contentDocument.getElementById('cc_ask').checked = true;
+                 break;
+        }
+
+        var me = this;
+        this._browser.contentDocument.getElementById('cc_yes').addEventListener('change', function() {
+             me.closeCurrentProfileChanged();
+        }, false);
+
+        this._browser.contentDocument.getElementById('cc_no').addEventListener('change', function() {
+             me.closeCurrentProfileChanged();
+        }, false);
+
+        this._browser.contentDocument.getElementById('cc_ask').addEventListener('change', function() {
+             me.closeCurrentProfileChanged();
+        }, false);
+    },
+
+    onStatusChange: function() { },
+
+    closeCurrentProfileChanged: function() {
+        if (this._browser.contentDocument.getElementById('cc_yes').checked)
+          switchy.setPrefs('closeCurrentProfile', 'yes');
+        else if (this._browser.contentDocument.getElementById('cc_no').checked)
+          switchy.setPrefs('closeCurrentProfile', 'no');
+        else
+          switchy.setPrefs('closeCurrentProfile', 'ask');
+    },
+
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIWebProgressListener,
+                                           Components.interfaces.nsISupportsWeakReference])
+};
+
 // Object for the 'about' view:
 function SwitchyManagerAbout(window, document) {
     this.initialize(window, document);
@@ -651,6 +745,7 @@ SwitchyManagerData.prototype = {
         this.pages = [
             { funcName: 'addURL',       id: 'category-add',      page_id: 'add-view',      obj: new SwitchyManagerAddUrl(window, document)   },
             { funcName: 'pageProfiles', id: 'category-profiles', page_id: 'profiles-view', obj: new SwitchyManagerProfiles(window, document) },
+            { funcName: 'pageSettings', id: 'category-settings', page_id: 'settings-view', obj: new SwitchyManagerSettings(window, document) },
             { funcName: 'pageAbout',    id: 'category-about',    page_id: 'about-view',    obj: new SwitchyManagerAbout(window, document)    }
         ];
 

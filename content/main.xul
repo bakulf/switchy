@@ -43,6 +43,9 @@
           <button label="&Manager;"
                   oncommand="SwitchyOverlay.panelManager();" />
 
+          <button label="&Settings;"
+                  oncommand="SwitchyOverlay.settings();" />
+
           <button label="&About;"
                   oncommand="SwitchyOverlay.about();" />
         </panel>

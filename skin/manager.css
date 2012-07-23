@@ -176,6 +176,10 @@ richlistitem:not([selected]) * {
 #category-profiles > .category-icon {
   list-style-image: url("chrome://switchy/skin/manager-profiles.png");
 }
+#category-settings > .category-icon {
+  list-style-image: url("chrome://switchy/skin/manager-settings.png");
+}
+
 #category-about > .category-icon {
   list-style-image: url("chrome://switchy/skin/manager-about.png");
 }

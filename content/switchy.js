@@ -29,6 +29,7 @@ function SwitchyOverlay() {}
 
 SwitchyOverlay.SWITCHY_PROFILES = "profiles";
 SwitchyOverlay.SWITCHY_ADD      = "add";
+SwitchyOverlay.SWITCHY_SETTINGS = "settings";
 SwitchyOverlay.SWITCHY_ABOUT    = "about";
 
 // Add the icon to the navBar
@@ -71,7 +72,7 @@ SwitchyOverlay.panelOpen = function() {
 
 // Manage the click on a profile
 SwitchyOverlay._panelSelected = function(obj) {
-    switchy.changeProfile(obj.label);
+    switchy.changeProfile(window, obj.label);
     document.getElementById('switchy-panel').hidePopup();
 }
 
@@ -132,6 +133,11 @@ SwitchyOverlay.add = function() {
                                    title: win.getBrowser().contentTitle } );
 }
 
+// Open the settings:
+SwitchyOverlay.settings = function() {
+    SwitchyOverlay.panelManager(SwitchyOverlay.SWITCHY_SETTINGS);
+}
+
 // Open the about:
 SwitchyOverlay.about = function() {
     SwitchyOverlay.panelManager(SwitchyOverlay.SWITCHY_ABOUT);
@@ -153,6 +159,9 @@ SwitchyOverlay._panelManagerPage = function(win, page, newUrlObj) {
 
     if (page == SwitchyOverlay.SWITCHY_ADD)
        win.switchyManagerData.addURL(newUrlObj);
+
+    if (page == SwitchyOverlay.SWITCHY_SETTINGS)
+        win.switchyManagerData.pageSettings();
 
     if (page == SwitchyOverlay.SWITCHY_ABOUT)
         win.switchyManagerData.pageAbout();
@@ -207,7 +216,7 @@ SwitchyOverlay.profileListUpdate = function() {
 // callback when a profile is chosen
 SwitchyOverlay._profileListSelected = function(obj) {
     var data = window.arguments[0];
-    switchy.changeProfile(obj.label, data.url);
+    switchy.changeProfile(window, obj.label, data.url);
 }
 
 // Configure the manager window:

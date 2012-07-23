@@ -39,6 +39,10 @@
                     class="category"
                     name="&ProfilesPage;"
                     tooltiptext="&ProfilesTooltip;" />
+      <richlistitem id="category-settings"
+                    class="category"
+                    name="&SettingsPage;"
+                    tooltiptext="&SettingsTooltip;" />
       <richlistitem id="category-about"
                     class="category"
                     name="&AboutPage;"
@@ -59,6 +63,12 @@
         <!-- add view -->
         <vbox id="add-view" flex="1" class="view-pane" align="stretch">
           <browser id="add-browser" type="content" flex="1"
+                   disablehistory="true" homepage="about:blank"/>
+        </vbox>
+
+        <!-- settings view -->
+        <vbox id="settings-view" flex="1" class="view-pane" align="stretch">
+          <browser id="settings-browser" type="content" flex="1"
                    disablehistory="true" homepage="about:blank"/>
         </vbox>
 

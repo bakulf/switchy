@@ -152,6 +152,11 @@ const switchy = {
 
     _firstRun: true,
 
+    _prefs: {},
+    _defaultPrefs: { 'closeCurrentProfile': 'ask' },
+
+    _prompt: null,
+
     // Queries:
     _createTableSQL: '' +
         'CREATE TABLE IF NOT EXISTS data (' +
@@ -166,6 +171,16 @@ const switchy = {
     _updateQuerySQL: 'UPDATE data SET url = :url, type = :type, startup = :startup, exclusive = :exclusive WHERE url = :prevUrl AND profile = :profile',
     _deleteQuerySQL: 'DELETE FROM data WHERE profile = :profile AND url = :url',
     _selectQuerySQL: 'SELECT * FROM data',
+
+    // Queries for Preferencies:
+    _createPrefsTableSQL: '' +
+        'CREATE TABLE IF NOT EXISTS prefs (' +
+        '  key   char(255),                ' +
+        '  value char(255),                ' +
+        '  PRIMARY KEY(key)                ' +
+        ')',
+    _insertPrefsQuerySQL: 'INSERT OR REPLACE INTO prefs(key, value) VALUES(:key, :value)',
+    _selectPrefsQuerySQL: 'SELECT * FROM prefs',
 
     init: function() {
         if (this._initialized)
@@ -194,6 +209,9 @@ const switchy = {
 
         // Table creation:
         this._db.executeSimpleSQL(this._createTableSQL);
+        this._db.executeSimpleSQL(this._createPrefsTableSQL);
+
+        this.readPrefs();
         this.populateCache();
 
         // List of observer
@@ -357,15 +375,106 @@ const switchy = {
         }
     },
 
-    changeProfiles: function (url, profileArray, win) {
+    changeProfiles: function (win, url, profileArray) {
         if (profileArray.length == 1)
-            return this.changeProfile(profileArray[0], url);
+            return this.changeProfile(win, profileArray[0], url);
 
         win.openDialog('chrome://switchy/content/profiles.xul', 'Choose a profile',
                        'chrome,dialog,centerscreen', { profiles: profileArray, url: url } );
     },
 
-    changeProfile: function(profileName, url) {
+    changeProfile: function(win, profileName, url) {
+        // Here, we know that we can proceed:
+        var toQuit;
+        switch (this.getPrefs('closeCurrentProfile')) {
+            case 'yes':
+                toQuit = true;
+                break;
+
+            case 'no':
+                toQuit = false;
+                break;
+
+            case 'ask':
+                var ret = this.closeCurrentProfileAsk(win);
+                if (ret == -1)
+                    return;
+
+                toQuit = (ret == 1);
+                break;
+        }
+
+        if (this.changeProfileWithProcess(win, toQuit, profileName, url) == false)
+            this.changeProfileWithEnv(win, toQuit, profileName, url);
+    },
+
+    changeProfileWithProcess: function(win, toQuit, profileName, url) {
+        var os = win.navigator.platform.toLowerCase();
+
+        var firefoxes = [ { fullpath : false, path : 'firefox.exe' },             // windows
+                          { fullpath : false, path : 'firefox-bin' },             // mac
+                          { fullpath : false, path : 'firefox' },                 // linux
+                          { fullpath : true,  path : '/usr/bin/firefox' },        // linux.. full path
+                          { fullpath : true,  path : '/usr/local/bin/firefox' },  // linux.. full path
+                          { fullpath : true,  path : '/usr/bin/iceweasel' },      // debian :(
+                          { fullpath : false, path : 'icecat' },                  // gnu :(
+                          { fullpath : false, path : 'firefox.sh' },              // linux.. script?!?
+                        ];
+
+        var execFile;
+        for (var i = 0; i < firefoxes.length; ++i) {
+            if (firefoxes[i].fullpath) {
+                execFile = Components.classes["@mozilla.org/file/local;1"]
+                                     .createInstance(Components.interfaces.nsILocalFile);
+                execFile.initWithPath(firefoxes[i].path);
+            } else {
+                execFile = Components.classes["@mozilla.org/file/directory_service;1"]
+                                     .getService(Components.interfaces.nsIProperties)
+                                     .get("CurProcD", Components.interfaces.nsIFile);
+                execFile.append(firefoxes[i].path);
+            }
+
+            if (execFile.exists())
+                break;
+
+            execFile = null;
+        }
+
+        // not found:
+        if (execFile == null)
+            return false;
+
+        var process = Components.classes["@mozilla.org/process/util;1"]
+                                .createInstance(Components.interfaces.nsIProcess);
+        process.init(execFile);
+
+        var args = [];
+        args.push("-P");
+        args.push(profileName);
+        args.push("-no-remote");
+
+        if (url) {
+            args.push(url);
+        }
+
+        process.run(false,args,args.length);
+
+        if (toQuit) {
+            win.setTimeout(function() {
+                var _appStartup = Components.classes['@mozilla.org/toolkit/app-startup;1']
+                                            .getService(Components.interfaces.nsIAppStartup);
+              _appStartup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit);
+            }, 1000);
+        }
+
+        return true;
+    },
+
+    changeProfileWithEnv: function(win, toQuit, profileName, url) {
+        if (toQuit == false) {
+             // TODO: notification: we cannot keep your profile opened.
+        }
+
         var env = Components.classes["@mozilla.org/process/environment;1"]
                             .getService(Components.interfaces.nsIEnvironment);
 
@@ -393,6 +502,34 @@ const switchy = {
         _appStartup.quit(Components.interfaces.nsIAppStartup.eRestart |
                          Components.interfaces.nsIAppStartup.eAttemptQuit);
         return true;
+    },
+
+    closeCurrentProfileAsk: function(win) {
+        if (!this._prompt) {
+            this._prompt = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                                      .getService(Components.interfaces.nsIPromptService);
+        }
+
+        if (!this._bundle) {
+          var bundleService = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                                        .getService(Components.interfaces.nsIStringBundleService);
+          this._bundle =  bundleService.createBundle("chrome://switchy/locale/strings.properties");
+        }
+
+        var res = this._prompt.confirmEx(win,
+                                         this._bundle.GetStringFromName('closeCurrentProfileTitle'),
+                                         this._bundle.GetStringFromName('closeCurrentProfileAsk'),
+                                         (this._prompt.BUTTON_TITLE_YES *    this._prompt.BUTTON_POS_1 +
+                                          this._prompt.BUTTON_TITLE_CANCEL * this._prompt.BUTTON_POS_2 +
+                                          this._prompt.BUTTON_TITLE_NO *     this._prompt.BUTTON_POS_0),
+                                         null, null, null, null, {});
+        if (res == 1)
+            return 1;
+
+        if (res == 2)
+            return -1;
+
+        return 0;
     },
 
     populateCache: function(cb) {
@@ -494,7 +631,7 @@ const switchy = {
                 accessKey: "C",
                 popup:     null,
                 callback:  function(notificationBar, button) {
-                    me.changeProfiles(url, profiles, win);
+                    me.changeProfiles(win, url, profiles);
                 }
             }
         ];
@@ -641,6 +778,59 @@ const switchy = {
             handleError: function(error) {
                 dump('deleteURL:' + error.message + "\n");
                 this.error = true;
+            }
+        });
+    },
+
+    readPrefs: function() {
+        var stmt = this._db.createStatement(this._selectPrefsQuerySQL);
+
+        // Refresh the cache:
+        this._prefs = {};
+
+        var me = this;
+        stmt.executeAsync({
+            handleResult: function(aResultSet) {
+                for (let row = aResultSet.getNextRow();
+                     row;
+                     row = aResultSet.getNextRow()) {
+                    me._prefs[row.getResultByName('key')] = row.getResultByName('value');
+                }
+            },
+
+            handleCompletion: function(st) {
+                // default values:
+                for (var key in me._defaultPrefs) {
+                  if (me._prefs[key] == undefined)
+                    me._prefs[key] = me._defaultPrefs[key];
+                }
+            }
+        });
+    },
+
+    getPrefs: function(key) {
+        return this._prefs[key];
+    },
+
+    setPrefs: function(key, value) {
+        this._prefs[key] = value;
+
+        var stmt = this._db.createStatement(this._insertPrefsQuerySQL);
+        var params = stmt.newBindingParamsArray();
+
+        var bp = params.newBindingParams();
+        bp.bindByName('key',   key);
+        bp.bindByName('value', value);
+        params.addParams(bp);
+
+        stmt.bindParameters(params);
+
+        let me = this;
+        stmt.executeAsync({
+            handleCompletion: function(st) { },
+
+            handleError: function(error) {
+                dump('insertPrefs: ' + error.message + "\n");
             }
         });
     },

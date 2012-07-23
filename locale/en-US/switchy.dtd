@@ -4,11 +4,14 @@
 <!ENTITY CurrentProfile "Current profile:">
 <!ENTITY AddWebsite "Add this website to a profile...">
 <!ENTITY Manager "Manager">
+<!ENTITY Settings "Settings">
 <!ENTITY About "About...">
 <!ENTITY AddWebsitesPage "Add new websites">
 <!ENTITY AddWebsitesTooltip "Add a new website to profiles">
 <!ENTITY ProfilesPage "Profiles">
 <!ENTITY ProfilesTooltip "Manage your profiles">
+<!ENTITY SettingsPage "Settings">
+<!ENTITY SettingsTooltip "Configure your switchy">
 <!ENTITY AboutPage "About">
 <!ENTITY AboutTooltip "About Switchy">
 <!ENTITY ProfilesTitle "Choose a profile...">
