@@ -12,7 +12,7 @@
 
   <!-- Localization -->
   <stringbundleset id="switchystrbundles">
-    <stringbundle id="switchystrings" src="chrome://switchy/locale/strings.properties"/>
+    <stringbundle id="switchystrings" src="chrome://switchy/locale/switchy.properties"/>
   </stringbundleset>
 
   <toolbarpalette id="BrowserToolbarPalette">

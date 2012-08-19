@@ -217,6 +217,11 @@ const switchy = {
         // List of observer
         let os = Services.obs;
         os.addObserver(this, "sessionstore-windows-restored", false);
+
+        // timeout quit must be set!
+        if (!this.getPrefs('timeoutQuit')) {
+          this.setPrefs('timeoutQuit', 1000);
+        }
     },
 
     shutdown: function() {
@@ -404,21 +409,21 @@ const switchy = {
                 break;
         }
 
-        if (this.changeProfileWithProcess(win, toQuit, profileName, url) == false)
-            this.changeProfileWithEnv(win, toQuit, profileName, url);
+        if (this.changeProfileWithProcess(win, toQuit, profileName, url) == false) {
+            // We have to ask for the firefox path:
+            this.askPath(win, this.getPrefs('firefoxPath'), toQuit, profileName, url);
+        }
     },
 
     changeProfileWithProcess: function(win, toQuit, profileName, url) {
-        var os = win.navigator.platform.toLowerCase();
-
-        var firefoxes = [ { fullpath : false, path : 'firefox.exe' },             // windows
-                          { fullpath : false, path : 'firefox-bin' },             // mac
-                          { fullpath : false, path : 'firefox' },                 // linux
-                          { fullpath : true,  path : '/usr/bin/firefox' },        // linux.. full path
-                          { fullpath : true,  path : '/usr/local/bin/firefox' },  // linux.. full path
-                          { fullpath : true,  path : '/usr/bin/iceweasel' },      // debian :(
-                          { fullpath : false, path : 'icecat' },                  // gnu :(
-                          { fullpath : false, path : 'firefox.sh' },              // linux.. script?!?
+        var firefoxes = [ { fullpath : true,  path : this.getPrefs('firefoxPath') }, // User preference
+                          { fullpath : false, path : 'firefox-bin' },                // mac
+                          { fullpath : false, path : 'firefox' },                    // linux
+                          { fullpath : true,  path : '/usr/bin/firefox' },           // linux.. full path
+                          { fullpath : true,  path : '/usr/local/bin/firefox' },     // linux.. full path
+                          { fullpath : true,  path : '/usr/bin/iceweasel' },         // debian :(
+                          { fullpath : false, path : 'icecat' },                     // gnu :(
+                          { fullpath : false, path : 'firefox.sh' },                 // linux.. script?!?
                         ];
 
         var execFile;
@@ -426,15 +431,25 @@ const switchy = {
             if (firefoxes[i].fullpath) {
                 execFile = Components.classes["@mozilla.org/file/local;1"]
                                      .createInstance(Components.interfaces.nsILocalFile);
-                execFile.initWithPath(firefoxes[i].path);
+                try {
+                    execFile.initWithPath(firefoxes[i].path);
+                } catch(e) {
+                    execFile = null;
+                    continue;
+                }
             } else {
                 execFile = Components.classes["@mozilla.org/file/directory_service;1"]
                                      .getService(Components.interfaces.nsIProperties)
                                      .get("CurProcD", Components.interfaces.nsIFile);
-                execFile.append(firefoxes[i].path);
+                try {
+                    execFile.append(firefoxes[i].path);
+                } catch(e) {
+                    execFile = null;
+                    continue;
+                }
             }
 
-            if (execFile.exists())
+            if (execFile.exists() && execFile.isExecutable() && execFile.isFile())
                 break;
 
             execFile = null;
@@ -464,61 +479,60 @@ const switchy = {
                 var _appStartup = Components.classes['@mozilla.org/toolkit/app-startup;1']
                                             .getService(Components.interfaces.nsIAppStartup);
               _appStartup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit);
-            }, 1000);
+            }, this.getPrefs('timeoutQuit'));
         }
 
         return true;
     },
 
-    changeProfileWithEnv: function(win, toQuit, profileName, url) {
-        if (toQuit == false) {
-             // TODO: notification: we cannot keep your profile opened.
+    askPath: function(win, value, toQuit, profileName, url) {
+        this.promptNeeded();
+
+        var check = { value: false };
+        var input = { value: value ? value : "" };
+
+        var result = this._prompt.prompt(win,
+                                         this._bundle.GetStringFromName('Switchy.askForPathTitle'),
+                                         this._bundle.GetStringFromName('Switchy.askForPathMessage'),
+                                         input, null, check);
+        if (result == false)
+            return;
+
+        var showWarning = !input.value;
+        if (!showWarning) {
+            var execFile = Components.classes["@mozilla.org/file/local;1"]
+                                     .createInstance(Components.interfaces.nsILocalFile);
+            try {
+              execFile.initWithPath(input.value);
+              showWarning = !execFile.exists() || !execFile.isExecutable() || !execFile.isFile();
+            } catch(e) {
+              showWarning = true;
+            }
         }
 
-        var env = Components.classes["@mozilla.org/process/environment;1"]
-                            .getService(Components.interfaces.nsIEnvironment);
-
-        var profile;
-        try {
-            profile = this._profileService.getProfileByName(profileName);
-        } catch(e) { return false; }
-
-        if (!profile)
-            return false;
-
-        this._profileService.selectedProfile = profile;
-        this._profileService.flush();
-
-        env.set('MOZ_NO_REMOTE', '1');
-        env.set('XRE_PROFILE_PATH', profile.rootDir.path);
-        env.set('XRE_PROFILE_LOCAL_PATH', profile.localDir.path);
-
-        if (url) {
-            env.set('SWITCHY_URL', url);
+        if (showWarning) {
+            var result = this._prompt.alert(win,
+                                            this._bundle.GetStringFromName('Switchy.askForPathUnknownTitle'),
+                                            this._bundle.GetStringFromName('Switchy.askForPathUnknownMessage'));
+            this.askPath(win, input.value, toQuit, profileName, url);
+            return;
         }
 
-        var _appStartup = Components.classes['@mozilla.org/toolkit/app-startup;1']
-                                    .getService(Components.interfaces.nsIAppStartup);
-        _appStartup.quit(Components.interfaces.nsIAppStartup.eRestart |
-                         Components.interfaces.nsIAppStartup.eAttemptQuit);
-        return true;
+        // Let's store the path:
+        this.setPrefs('firefoxPath', input.value);
+
+        // restat the operation:
+        if (!this.changeProfileWithProcess(win, toQuit, profileName, url)) {
+          this.askPath(win, input.value, toQuit, profileName, url);
+        }
     },
 
     closeCurrentProfileAsk: function(win) {
-        if (!this._prompt) {
-            this._prompt = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-                                      .getService(Components.interfaces.nsIPromptService);
-        }
-
-        if (!this._bundle) {
-          var bundleService = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                                        .getService(Components.interfaces.nsIStringBundleService);
-          this._bundle =  bundleService.createBundle("chrome://switchy/locale/strings.properties");
-        }
+        this.promptNeeded();
 
         var res = this._prompt.confirmEx(win,
-                                         this._bundle.GetStringFromName('closeCurrentProfileTitle'),
-                                         this._bundle.GetStringFromName('closeCurrentProfileAsk'),
+                                         this._bundle.GetStringFromName('Switchy.closeCurrentProfileTitle'),
+                                         this._bundle.GetStringFromName('Switchy.closeCurrentProfileAsk'),
                                          (this._prompt.BUTTON_TITLE_YES *    this._prompt.BUTTON_POS_1 +
                                           this._prompt.BUTTON_TITLE_CANCEL * this._prompt.BUTTON_POS_2 +
                                           this._prompt.BUTTON_TITLE_NO *     this._prompt.BUTTON_POS_0),
@@ -530,6 +544,20 @@ const switchy = {
             return -1;
 
         return 0;
+    },
+
+    promptNeeded: function() {
+        if (!this._prompt) {
+            this._prompt = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+                                      .getService(Components.interfaces.nsIPromptService);
+        }
+
+        if (!this._bundle) {
+          var bundleService = Components.classes["@mozilla.org/intl/stringbundle;1"]
+                                        .getService(Components.interfaces.nsIStringBundleService);
+          this._bundle =  bundleService.createBundle("chrome://switchy/locale/switchy.properties");
+        }
+
     },
 
     populateCache: function(cb) {
@@ -604,7 +632,7 @@ const switchy = {
         var profiles = [];
         var pAvailable = this.getProfileNames();
 
-        for (key in this._cache) {
+        for (var key in this._cache) {
             for (var i = 0; i < this._cache[key].length; ++i) {
                 try {
                     if (this._cache[key][i].exclusive() && this._cache[key][i].match(url)) {

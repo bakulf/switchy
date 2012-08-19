@@ -7,21 +7,17 @@
 <body>
   <div id="wrapper">
     <h1><img src="chrome://switchy/skin/logo.png" /></h1>
-    <h1>YOUR PROFILES</h1>
-    <div id='alert-url-added' class="warning"></div>
-    <div id='alert-url-saved' class="warning"></div>
-    <div id='alert-url-error' class="error"></div>
-    <div id='alert-wait' class="warning"></div>
+    <h1 class="trans">Manager.profiles.yourProfiles</h1>
+    <div id='alert-url-added' class="warning trans">Manager.profiles.alertAdded</div>
+    <div id='alert-url-saved' class="warning trans">Manager.profiles.alertSaved</div>
+    <div id='alert-url-error' class="error trans">Manager.profiles.alertError</div>
+    <div id='alert-wait' class="warning trans">Manager.profiles.alertWait</div>
 
     <div id="profiles-list">
-      <h2>test</h2>
-      <ul>
-        <li><h3><strong>URL</strong><input type="text" value="aaa" /><input class="right" type="button" value="delete"/></h3>
-      </ul>
       <!-- Generated at run-time -->
     </div>
 
-    <input type="button" value="create a new profile" id="create" />
+    <input type="button" class="transattr" data-trans="value" value="Manager.profiles.createNewProfile" id="create" />
 
   </div>
 </body>

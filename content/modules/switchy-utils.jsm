@@ -32,6 +32,19 @@ SwitchyUtils.openUrl = function(win, url) {
         win.openUILinkIn(url.spec, "tab");
 }
 
+SwitchyUtils.translate = function(strbundle, browser) {
+    var list = browser.contentDocument.getElementsByClassName('trans');
+    for (var i = 0; i < list.length; ++i) {
+       list[i].innerHTML = strbundle.getString(list[i].innerHTML);
+    }
+
+    list = browser.contentDocument.getElementsByClassName('transattr');
+    for (var i = 0; i < list.length; ++i) {
+       var attr = list[i].getAttribute('data-trans');
+       list[i].setAttribute(attr, strbundle.getString(list[i].getAttribute(attr)));
+    }
+}
+
 // This will switch to the tab in aWindow having aURI, if present.
 function switchy_switchIfURIInWindow(aWindow, aURI) {
     var browsers = aWindow.gBrowser.browsers;

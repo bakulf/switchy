@@ -1,4 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
@@ -9,13 +10,33 @@
   <div id="wrapper">
 
     <h1><img src="chrome://switchy/skin/logo.png" /></h1>
+    <div id='alert' class="warning trans">Manager.settings.alertSaved</div>
+
     <div>
-      <h2>Close the current profile when switching?</h2>
+      <h2 class="trans">Manager.settings.closeTitle</h2>
 
-      <input type="radio" name="closeCurrent" id="cc_yes" value="yes">Yes, close the current profile at any time<br />
-      <input type="radio" name="closeCurrent" id="cc_no"  value="no">No, keep both profiles open<br />
-      <input type="radio" name="closeCurrent" id="cc_ask" value="ask">Ask me<br />
+      <input type="radio" name="closeCurrent" id="cc_yes" value="yes"/><span class="trans">Manager.settings.closeYes</span><br />
+      <input type="radio" name="closeCurrent" id="cc_no"  value="no"/><span class="trans">Manager.settings.closeNo</span><br />
+      <input type="radio" name="closeCurrent" id="cc_ask" value="ask"/><span class="trans">Manager.settings.closeAsk</span><br />
+    </div>
 
+    <br />
+    <h4 class="trans">Manager.settings.settingsWarning</h4>
+    <br />
+
+    <div>
+      <h2 class="trans">Manager.settings.firefoxPath</h2>
+      <input type="text" name="firefoxPath" id="fp" value="" /><br />
+      <span class="trans">Manager.settings.firefoxPathDesc</span>
+    </div>
+
+    <div>
+      <h2 class="trans">Manager.settings.timeoutQuit</h2>
+      <input type="text" name="quitTimeout" id="qt" value="" /><br />
+      <span class="trans">Manager.settings.timeoutQuitDesc</span>
+    </div>
+
+    <input type="button" id="save" class="transattr" data-trans="value" value="Manager.settings.save" />
   </div>
 </body>
 

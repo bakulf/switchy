@@ -3,6 +3,7 @@
 Components.utils.import("resource://gre/modules/Services.jsm");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("chrome://switchy/content/modules/switchy.jsm");
+Components.utils.import("chrome://switchy/content/modules/switchy-utils.jsm");
 
 var EXPORTED_SYMBOLS = ["SwitchyManagerData"];
 
@@ -152,6 +153,9 @@ SwitchyManagerAddUrl.prototype = {
         if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
             return;
 
+        // Translate
+        SwitchyUtils.translate(this._document.getElementById("switchystrings"), this._browser);
+
         // Disable the alerts:
         this.disableAlerts();
 
@@ -272,7 +276,7 @@ SwitchyManagerProfiles.prototype = {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', strbundle.getString("delete"));
+            button.setAttribute('value', strbundle.getString("Manager.profiles.delete"));
             title.appendChild(button);
 
             button.addEventListener('click', function() {
@@ -284,7 +288,7 @@ SwitchyManagerProfiles.prototype = {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', strbundle.getString("rename"));
+            button.setAttribute('value', strbundle.getString("Manager.profiles.rename"));
             title.appendChild(button);
 
             button.addEventListener('click', function() {
@@ -296,7 +300,7 @@ SwitchyManagerProfiles.prototype = {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', strbundle.getString("open"));
+            button.setAttribute('value', strbundle.getString("Manager.profiles.open"));
             title.appendChild(button);
 
             button.addEventListener('click', function() {
@@ -318,7 +322,7 @@ SwitchyManagerProfiles.prototype = {
 
             var info;
             info = this._browser.contentDocument.createElement('strong');
-            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString("url")));
+            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString("Manager.profiles.url")));
             h3.appendChild(info);
 
             let urlInput = this._browser.contentDocument.createElement('input');
@@ -329,7 +333,7 @@ SwitchyManagerProfiles.prototype = {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
             button.setAttribute('type', 'button');
-            button.setAttribute('value', strbundle.getString("deleteUrl"));
+            button.setAttribute('value', strbundle.getString("Manager.profiles.deleteUrl"));
             h3.appendChild(button);
 
             var table = this._browser.contentDocument.createElement('table');
@@ -344,7 +348,7 @@ SwitchyManagerProfiles.prototype = {
             tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
-            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString("type")));
+            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString("Manager.profiles.type")));
             td.appendChild(info);
 
             let select = this._browser.contentDocument.createElement('select');
@@ -352,7 +356,7 @@ SwitchyManagerProfiles.prototype = {
 
             var option;
             option = this._browser.contentDocument.createElement('option');
-            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('typeComplete')));
+            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('Manager.profiles.typeComplete')));
             if (data[i].typeString() == 'complete') option.setAttribute('selected', 'true');
             option.setAttribute('value', 'complete');
             select.appendChild(option);
@@ -360,26 +364,26 @@ SwitchyManagerProfiles.prototype = {
             option = this._browser.contentDocument.createElement('option');
             if (data[i].typeString() == 'path') option.setAttribute('selected', 'true');
             option.setAttribute('value', 'path');
-            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('typePath')));
+            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('Manager.profiles.typePath')));
             select.appendChild(option);
 
             option = this._browser.contentDocument.createElement('option');
             if (data[i].typeString() == 'host') option.setAttribute('selected', 'true');
             option.setAttribute('value', 'host');
-            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('typeHost')));
+            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('Manager.profiles.typeHost')));
             select.appendChild(option);
 
             option = this._browser.contentDocument.createElement('option');
             if (data[i].typeString() == 'domain') option.setAttribute('selected', 'true');
             option.setAttribute('value', 'domain');
-            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('typeDomain')));
+            option.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('Manager.profiles.typeDomain')));
             select.appendChild(option);
 
             td = this._browser.contentDocument.createElement('td');
             tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
-            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('onStartup')));
+            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('Manager.profiles.onStartup')));
             td.appendChild(info);
 
             let startup = this._browser.contentDocument.createElement('input');
@@ -391,7 +395,7 @@ SwitchyManagerProfiles.prototype = {
             tr.appendChild(td);
 
             info = this._browser.contentDocument.createElement('strong');
-            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('exclusive')));
+            info.appendChild(this._browser.contentDocument.createTextNode(strbundle.getString('Manager.profiles.exclusive')));
             td.appendChild(info);
 
             let exclusive = this._browser.contentDocument.createElement('input');
@@ -438,17 +442,17 @@ SwitchyManagerProfiles.prototype = {
 
         var selectedProfile = switchy.profileService().selectedProfile;
         if (selectedProfile.rootDir.exists()) {
-            var msg = strbundle.getFormattedString('deleteProfileConfirm', [selectedProfile.rootDir.path]);
+            var msg = strbundle.getFormattedString('Manager.profiles.deleteProfileConfirm', [selectedProfile.rootDir.path]);
 
             this.needPrompt();
 
-            var buttonPressed = this._prompt.confirmEx(this._window, strbundle.getString('deleteProfileTitle'), msg,
+            var buttonPressed = this._prompt.confirmEx(this._window, strbundle.getString('Manager.profiles.deleteProfileTitle'), msg,
                           (this._prompt.BUTTON_TITLE_IS_STRING * this._prompt.BUTTON_POS_0) +
                           (this._prompt.BUTTON_TITLE_CANCEL    * this._prompt.BUTTON_POS_1) +
                           (this._prompt.BUTTON_TITLE_IS_STRING * this._prompt.BUTTON_POS_2),
-                          strbundle.getString('deleteProfileDoNot'),
+                          strbundle.getString('Manager.profiles.deleteProfileDoNot'),
                           null,
-                          strbundle.getString('deleteProfileDo'),
+                          strbundle.getString('Manager.profiles.deleteProfileDo'),
                           null, {value:0});
             if (buttonPressed == 1)
                 return false;
@@ -471,9 +475,9 @@ SwitchyManagerProfiles.prototype = {
         var strbundle = this._document.getElementById("switchystrings");
 
         var newName = {value: profile};
-        var msg = strbundle.getFormattedString('renameProfile', [profile]);
+        var msg = strbundle.getFormattedString('Manager.profiles.renameProfile', [profile]);
 
-        if (this._prompt.prompt(this._window, strbundle.getString('renameProfileTitle'), msg, newName, null, {value:0})) {
+        if (this._prompt.prompt(this._window, strbundle.getString('Manager.profiles.renameProfileTitle'), msg, newName, null, {value:0})) {
             newName = newName.value;
 
             // User hasn't changed the profile name. Treat as if cancel was pressed.
@@ -534,14 +538,6 @@ SwitchyManagerProfiles.prototype = {
         this._timer.initWithCallback(eventTimeout, 3000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
     },
 
-    populateAlerts: function() {
-        var strbundle = this._document.getElementById("switchystrings");
-        this._browser.contentDocument.getElementById('alert-url-added').innerHTML = strbundle.getString('alertAdded');
-        this._browser.contentDocument.getElementById('alert-url-saved').innerHTML = strbundle.getString('alertSaved');
-        this._browser.contentDocument.getElementById('alert-url-error').innerHTML = strbundle.getString('alertError');
-        this._browser.contentDocument.getElementById('alert-wait').innerHTML = strbundle.getString('alertWait');
-    },
-
     // For progress listener
     onLocationChange: function(aWebProgress, aRequest, aLocation) { },
 
@@ -558,8 +554,10 @@ SwitchyManagerProfiles.prototype = {
         if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
             return;
 
+        // Translate
+        SwitchyUtils.translate(this._document.getElementById("switchystrings"), this._browser);
+
         // Alert:
-        this.populateAlerts();
         this.disableAlerts();
         if (this._alert) {
             this.showAlert(this._alert);
@@ -651,6 +649,9 @@ SwitchyManagerSettings.prototype = {
         if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
             return;
 
+        // Translate
+        SwitchyUtils.translate(this._document.getElementById("switchystrings"), this._browser);
+
         switch (switchy.getPrefs('closeCurrentProfile')) {
             case 'yes':
                  this._browser.contentDocument.getElementById('cc_yes').checked = true;
@@ -666,28 +667,54 @@ SwitchyManagerSettings.prototype = {
         }
 
         var me = this;
-        this._browser.contentDocument.getElementById('cc_yes').addEventListener('change', function() {
-             me.closeCurrentProfileChanged();
+        this._browser.contentDocument.getElementById('save').addEventListener('click', function() {
+             me.saved();
         }, false);
 
-        this._browser.contentDocument.getElementById('cc_no').addEventListener('change', function() {
-             me.closeCurrentProfileChanged();
-        }, false);
+        this._browser.contentDocument.getElementById('fp').value = switchy.getPrefs('firefoxPath');
+        this._browser.contentDocument.getElementById('qt').value = switchy.getPrefs('timeoutQuit');
 
-        this._browser.contentDocument.getElementById('cc_ask').addEventListener('change', function() {
-             me.closeCurrentProfileChanged();
-        }, false);
+
+        // alerts:
+        this.disableAlert();
     },
 
     onStatusChange: function() { },
 
-    closeCurrentProfileChanged: function() {
+    saved: function() {
         if (this._browser.contentDocument.getElementById('cc_yes').checked)
           switchy.setPrefs('closeCurrentProfile', 'yes');
         else if (this._browser.contentDocument.getElementById('cc_no').checked)
           switchy.setPrefs('closeCurrentProfile', 'no');
         else
           switchy.setPrefs('closeCurrentProfile', 'ask');
+
+        switchy.setPrefs('firefoxPath', this._browser.contentDocument.getElementById('fp').value);
+
+        var qt = parseInt(this._browser.contentDocument.getElementById('qt').value);
+        if (!qt || qt < 0) qt = 0;
+        this._browser.contentDocument.getElementById('qt').value = qt;
+        switchy.setPrefs('timeoutQuit', qt);
+
+        this.showAlert();
+    },
+
+    disableAlert: function() {
+        this._browser.contentDocument.getElementById('alert').hidden = true;
+    },
+
+    showAlert: function() {
+        this._browser.contentDocument.getElementById('alert').hidden = false;
+
+        if (!this._timer)
+            this._timer = Components.classes["@mozilla.org/timer;1"]
+                                    .createInstance(Components.interfaces.nsITimer);
+        else
+            this._timer.cancel();
+
+        let me = this;
+        var eventTimeout = { notify: function(timer) { me.disableAlert(); } }
+        this._timer.initWithCallback(eventTimeout, 3000, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
     },
 
     QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIWebProgressListener,

@@ -9,48 +9,42 @@
 
     <h1><img src="chrome://switchy/skin/logo.png" /></h1>
     <div class="add-url">
-      <h2>1. ADD YOUR WEBSITE</h2>
-      <div id='alert-url' class="error">Url is empty or not valid</div>
-      <div id='alert-type' class="warning">Choose a type</div>
-      <div id='alert-profiles' class="error">Select one profile</div>
-      <div id='alert-error' class="error">Error saving your changes: maybe that is not a URL? or it's already inserted in that profile?</div>
-      <input type="text" id="add-url" placeholder="inser the website you want to add" />
+      <h2 class="trans">Manager.add.yourWebsite</h2>
+      <div id='alert-url' class="error trans">Manager.add.alertUrl</div>
+      <div id='alert-type' class="warning trans">Manager.add.alertType</div>
+      <div id='alert-profiles' class="error trans">Manager.add.alertProfiles</div>
+      <div id='alert-error' class="error">Manager.add.alertError</div>
+      <input type="text" id="add-url" class="transattr" data-trans="placeholder" placeholder="Manager.add.placeholder" />
     </div>
 
     <ul>
-      <li><h2>2. HOW DO YOU WANT THE MATCH?</h2></li>
+      <li><h2 class="trans">Manager.add.match</h2></li>
       <li>
         <input type="radio" name="type" id="add-type-complete" value="complete" />
-        <label for="add-type-complete">
-          Complete<br />
-          Only this domain will be assigned to the profile.
-        </label>
+        <label for="add-type-complete" class="trans">Manager.add.matchComplete</label>
       </li>
       <li>
         <input type="radio" name="type" id="add-type-path" value="path" />
-        <label for="add-type-path">Match til the path<br />
-          E.g.: http://www.facebook.com/?id=... and http://www.facebook.com/?photo=...</label>
+        <label for="add-type-path" class="trans">Manager.add.matchPath</label>
       </li>
       <li>
         <input type="radio" name="type" id="add-type-host" value="host" />
-        <label for="add-type-host">Match til the Host<br />
-          E.g.: http://www.flickr.com/login and http://www.flickr.com/upload</label>
+        <label for="add-type-host" class="trans">Manager.add.matchHost</label>
       </li>
       <li>
         <input type="radio" name="type" id="add-type-domain" value="domain">
-        <label for="add-type-domain">Sub-domains included<br />
-          E.g.: http://www.google.com and http://plus.google.com</label>
+        <label for="add-type-domain" class="trans">Manager.add.matchDomain</label>
       </li>
     </ul>
-    <h2>3. CHOOSE YOUR PROFILE</h2>
+    <h2 class="trans">Manager.add.chooseProfile</h2>
     <table id="profiles-list">
        <!-- Generated at run-time -->
     </table>
-    <h2>4. OPTIONS</h2>
-     <input type="checkbox" id="on-startup">Open on startup of these profiles<br />
-     <input type="checkbox" id="on-exclusive">Open on exclusive of these profiles (a notification bar will be shown when this url will be open on other profiles)<br />
+    <h2 class="trans">Manager.add.options</h2>
+     <input type="checkbox" id="on-startup" /><span class="trans">Manager.add.optionStartup</span><br />
+     <input type="checkbox" id="on-exclusive" /><span class="trans">Manager.add.optionExclusive</span><br />
 
-    <input type="button" id="create" value="Create" />
+    <input type="button" id="create" class="transattr" data-trans="value" value="Manager.add.create" />
 
   </div>
 </body>
