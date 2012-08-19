@@ -237,6 +237,16 @@ const switchy = {
     },
 
     browserReady: function() {
+        // Let's wait a while before checking if the URL has already been opened.
+        var me = this;
+        var eventTimeout = { notify: function(timer) { me.browserReadyTimeout(); } }
+
+        this._browserReadyTimer = Components.classes["@mozilla.org/timer;1"]
+                                            .createInstance(Components.interfaces.nsITimer);
+        this._browserReadyTimer.initWithCallback(eventTimeout, 500, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+   },
+
+   browserReadyTimeout: function() {
         var win = this.getMostRecentBrowserWindow();
         if (!win)
             return;
