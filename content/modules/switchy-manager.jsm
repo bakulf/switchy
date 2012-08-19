@@ -671,7 +671,7 @@ SwitchyManagerSettings.prototype = {
              me.saved();
         }, false);
 
-        this._browser.contentDocument.getElementById('fp').value = switchy.getPrefs('firefoxPath');
+        this._browser.contentDocument.getElementById('fp').value = switchy.getPrefs('firefoxPath') ? switchy.getPrefs('firefoxPath') : "";
         this._browser.contentDocument.getElementById('qt').value = switchy.getPrefs('timeoutQuit');
 
 
@@ -736,6 +736,8 @@ SwitchyManagerAbout.prototype = {
         this._document = document;
 
         this._browser = this._document.getElementById('about-browser');
+        this._browser.addProgressListener(this, Components.interfaces.nsIWebProgress.NOTIFY_ALL |
+                                                Components.interfaces.nsIWebProgress.NOTIFY_STATE_ALL);
     },
 
     shutdown: function() {
@@ -752,7 +754,32 @@ SwitchyManagerAbout.prototype = {
 
     setData: function(args) {
         // No data for the about
-    }
+    },
+
+    // For progress listener
+    onLocationChange: function(aWebProgress, aRequest, aLocation) { },
+
+    onProgressChange: function() { },
+
+    onSecurityChange: function(aWebProgress, aRequest, aState) { },
+
+    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+        // Don't care about state but window
+        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW)))
+            return;
+
+        // Only when the operation is concluded
+        if (!(aStateFlags & (Components.interfaces.nsIWebProgressListener.STATE_STOP)))
+            return;
+
+        // Translate
+        SwitchyUtils.translate(this._document.getElementById("switchystrings"), this._browser);
+    },
+
+    onStatusChange: function() { },
+
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIWebProgressListener,
+                                           Components.interfaces.nsISupportsWeakReference])
 };
 
 // Object data
