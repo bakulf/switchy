@@ -41,7 +41,6 @@ SwitchyInitializer.prototype = {
                 observerService.addObserver(this, "quit-application", true);
                 break;
             case "profile-after-change":
-                // delayed init for Fennec
                 let appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
                                         .getService(Components.interfaces.nsIXULAppInfo);
                 if (appInfo.ID != "{1810dfbe-8d2e-4ce4-bd51-ffd3a5a6da67}")

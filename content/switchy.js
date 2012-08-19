@@ -53,7 +53,7 @@ SwitchyOverlay.panelOpen = function() {
     var count = 0;
 
     for (var i = 0; i < profiles.length; ++i) {
-        if (profiles[i] != switchy.currentProfile()) {
+        if (profiles[i] != switchy.currentProfileName()) {
             ++count;
 
             let row = document.createElement('listitem');
@@ -67,7 +67,7 @@ SwitchyOverlay.panelOpen = function() {
 
     // Current profile:
     var title = document.getElementById('switchy-current-profile');
-    title.value = switchy.currentProfile();
+    title.value = switchy.currentProfileName();
 }
 
 // Manage the click on a profile

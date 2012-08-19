@@ -242,9 +242,9 @@ const switchy = {
             return;
 
         // Default URL for this profile:
-        if (this._cache[this.currentProfile()]) {
-            for (var i = 0; i < this._cache[this.currentProfile()].length; ++i) {
-                SwitchyUtils.openUrl(win, this._cache[this.currentProfile()][i].url());
+        if (this._cache[this.currentProfileName()]) {
+            for (var i = 0; i < this._cache[this.currentProfileName()].length; ++i) {
+                SwitchyUtils.openUrl(win, this._cache[this.currentProfileName()][i].url());
             }
         }
 
@@ -289,7 +289,23 @@ const switchy = {
     },
 
     currentProfile: function() {
-        return this._profileService.selectedProfile.name;
+        var cpd = Components.classes["@mozilla.org/file/directory_service;1"]
+                            .getService(Components.interfaces.nsIProperties)
+                            .get("ProfD", Components.interfaces.nsIFile);
+
+        var itr = this._profileService.profiles;
+        while(itr.hasMoreElements()) {
+            var profile = itr.getNext().QueryInterface(Components.interfaces.nsIToolkitProfile);
+            if (profile.rootDir.path == cpd.path) {
+                return profile;
+            }
+        }
+
+        return this._profileService.selectedProfile;
+    },
+
+    currentProfileName: function() {
+        return this.currentProfile().name;
     },
 
     getUrlsForProfile: function(profile) {
@@ -331,6 +347,17 @@ const switchy = {
 
         url = Services.io.newURI('chrome://switchy/content/prefs.template', null, null);
         downloader.saveURI(url, null, null, null, null, file);
+    },
+
+    getProfile: function(name) {
+        var itr = this._profileService.profiles;
+        while(itr.hasMoreElements()) {
+            var profile = itr.getNext().QueryInterface(Components.interfaces.nsIToolkitProfile);
+            if (profile.name == name)
+                return profile;
+        }
+
+        return null;
     },
 
     getProfileNames: function() {
@@ -619,7 +646,7 @@ const switchy = {
             return;
 
         // This URL is supported by the current profile:
-        if (profiles.indexOf(this._profileService.selectedProfile.name) != -1)
+        if (profiles.indexOf(this.currentProfileName()) != -1)
             return;
 
         // Show notification:

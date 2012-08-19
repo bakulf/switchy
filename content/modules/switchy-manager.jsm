@@ -271,7 +271,7 @@ SwitchyManagerProfiles.prototype = {
         dom.appendChild(title);
 
         // No 'delete' for the current profile:
-        if (switchy.currentProfile() != profile)
+        if (switchy.currentProfileName() != profile)
         {
             var button = this._browser.contentDocument.createElement('input');
             button.setAttribute('class', 'right');
@@ -440,8 +440,8 @@ SwitchyManagerProfiles.prototype = {
 
         var strbundle = this._document.getElementById("switchystrings");
 
-        var selectedProfile = switchy.profileService().selectedProfile;
-        if (selectedProfile.rootDir.exists()) {
+        var selectedProfile = switchy.getProfile(profile);
+        if (selectedProfile && selectedProfile.rootDir.exists()) {
             var msg = strbundle.getFormattedString('Manager.profiles.deleteProfileConfirm', [selectedProfile.rootDir.path]);
 
             this.needPrompt();
