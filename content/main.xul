@@ -34,7 +34,7 @@
             <label value="" id="switchy-current-profile" />
           </hbox>
 
-          <listbox id="switchy-panel-rows">
+          <listbox id="switchy-panel-rows" row="0">
           </listbox>
 
           <button label="&AddWebsite;"

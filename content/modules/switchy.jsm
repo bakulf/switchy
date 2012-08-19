@@ -247,24 +247,6 @@ const switchy = {
                 SwitchyUtils.openUrl(win, this._cache[this.currentProfileName()][i].url());
             }
         }
-
-        // Url from the environment:
-        var env = Components.classes["@mozilla.org/process/environment;1"]
-                            .getService(Components.interfaces.nsIEnvironment);
-        var url = env.get('SWITCHY_URL');
-
-        if (url && url != "") {
-            env.set('SWITCHY_URL', '');
-
-            try {
-                url = Services.io.newURI(url, null, null);
-            } catch(e) {
-                url = null;
-            }
-
-            if (url)
-                SwitchyUtils.openUrl(win, url);
-        }
     },
 
     getMostRecentBrowserWindow: function() {
