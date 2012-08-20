@@ -4,8 +4,8 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = ["SwitchyUtils"];
 
-function SwitchyUtils() {
-}
+function SwitchyUtils() {}
+
 SwitchyUtils.openUrl = function(win, url) {
     var isBrowserWindow = !!win.gBrowser;
 
@@ -32,6 +32,7 @@ SwitchyUtils.openUrl = function(win, url) {
         win.openUILinkIn(url.spec, "tab");
 }
 
+// Translate a page
 SwitchyUtils.translate = function(strbundle, browser) {
     var list = browser.contentDocument.getElementsByClassName('trans');
     for (var i = 0; i < list.length; ++i) {

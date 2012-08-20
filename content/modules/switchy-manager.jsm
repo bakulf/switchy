@@ -13,6 +13,7 @@ var EXPORTED_SYMBOLS = ["SwitchyManagerData"];
 function SwitchyManagerAddUrl(window, document) {
     this.initialize(window, document);
 }
+
 SwitchyManagerAddUrl.prototype = {
     _data: null,
     _browser: null,

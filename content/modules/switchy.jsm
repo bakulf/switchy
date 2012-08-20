@@ -17,6 +17,7 @@ const SWITCHY_TYPE_UNKNOWN = -1
 function SwitchyUrl(url, type, startup, exclusive) {
     this.initialize(url, type, startup, exclusive);
 }
+
 SwitchyUrl.prototype = {
     _url: null,
     _type: null,
@@ -106,14 +107,12 @@ SwitchyUrl.prototype = {
     // Anything but the query string:
     matchPath: function(url) {
         return (this._url.host == url.host &&
-                this._url.port == url.port &&
                 this._url.path == url.path);
     },
 
     // Anything but the path + query:
     matchHost: function(url) {
-        return (this._url.host == url.host &&
-                this._url.port == url.port);
+        return (this._url.host == url.host);
     },
 
     // Just the domain:
