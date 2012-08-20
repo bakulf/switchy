@@ -238,3 +238,25 @@ SwitchyOverlay.managerLoad = function() {
         win.top.XULBrowserWindow.inContentWhitelist.push('chrome://switchy/content/manager.xul');
     } catch(e) {}
 }
+
+// Menu opened:
+SwitchyOverlay.menuOpen = function() {
+    // Current profile:
+    var title = document.getElementById('switchy-menu-current-profile');
+    title.setAttribute('label', title.getAttribute('data-label') + ' ' + switchy.currentProfileName());
+
+    var rows = document.getElementById('switchy-menu-profiles');
+    while(rows.firstChild)
+       rows.removeChild(rows.firstChild);
+
+    var profiles = switchy.getProfileNames();
+
+    for (var i = 0; i < profiles.length; ++i) {
+        if (profiles[i] != switchy.currentProfileName()) {
+            let row = document.createElement('menuitem');
+            row.setAttribute('label', profiles[i]);
+            row.addEventListener('click', function() { SwitchyOverlay._panelSelected(row); }, false);
+            rows.appendChild(row);
+        }
+    }
+}

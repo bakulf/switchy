@@ -1,18 +1,21 @@
-<!ENTITY Title "Switchy">
-<!ENTITY TitleManager "Switchy Manager">
-<!ENTITY Tooltip "Choose your profile">
-<!ENTITY CurrentProfile "Current profile:">
-<!ENTITY AddWebsite "Add this website to a profile...">
-<!ENTITY Manager "Manager">
-<!ENTITY Settings "Settings">
-<!ENTITY About "About...">
-<!ENTITY AddWebsitesPage "Add new websites">
-<!ENTITY AddWebsitesTooltip "Add a new website to profiles">
-<!ENTITY ProfilesPage "Profiles">
-<!ENTITY ProfilesTooltip "Manage your profiles">
-<!ENTITY SettingsPage "Settings">
-<!ENTITY SettingsTooltip "Configure your switchy">
-<!ENTITY AboutPage "About">
-<!ENTITY AboutTooltip "About Switchy">
-<!ENTITY ProfilesTitle "Choose a profile...">
-<!ENTITY Close "Close">
+<!ENTITY Switchy.title "Switchy">
+<!ENTITY Switchy.tooltip "Choose your profile">
+<!ENTITY Switchy.currentProfile "Current profile:">
+<!ENTITY Switchy.addWebsite "Add this website to a profile">
+<!ENTITY Switchy.manager "Manager">
+<!ENTITY Switchy.settings "Settings">
+<!ENTITY Switchy.about "About">
+<!ENTITY Switchy.changeProfile "Select a profile">
+
+<!ENTITY Switchy.profilesTitle "Choose a profile">
+<!ENTITY Switchy.close "Close">
+
+<!ENTITY Switchy.titleManager "Switchy Manager">
+<!ENTITY Switchy.addWebsitesPage "Add new websites">
+<!ENTITY Switchy.addWebsitesTooltip "Add a new website to profiles">
+<!ENTITY Switchy.profilesPage "Profiles">
+<!ENTITY Switchy.profilesTooltip "Manage your profiles">
+<!ENTITY Switchy.settingsPage "Settings">
+<!ENTITY Switchy.settingsTooltip "Configure your switchy">
+<!ENTITY Switchy.aboutPage "About">
+<!ENTITY Switchy.aboutTooltip "About Switchy">

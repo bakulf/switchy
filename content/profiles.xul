@@ -5,7 +5,7 @@
 <!DOCTYPE overlay SYSTEM "chrome://switchy/locale/switchy.dtd">
 
 <window class="dialog"
-    title="&ProfilesTitle;"
+    title="&Switchy.profilesTitle;"
     orient="vertical"
     autostretch="always"
     onload="SwitchyOverlay.profileListUpdate(); sizeToContent();"
@@ -22,7 +22,7 @@
 
   <hbox>
       <spacer flex="1"/>
-      <button label="&Close;" oncommand="window.close();"/>
+      <button label="&Switchy.close;" oncommand="window.close();"/>
   </hbox>
 
 </window>

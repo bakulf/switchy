@@ -10,7 +10,7 @@
       onload="SwitchyManager.initialize();"
       onunload="SwitchyManager.shutdown();"
       id="switchy-page"
-      title="&TitleManager;"
+      title="&Switchy.titleManager;"
       role="application"
       disablechrome="true"
       disablefastfind="true">
@@ -33,20 +33,20 @@
     <richlistbox id="categories" persist="last-selected">
       <richlistitem id="category-add"
                     class="category"
-                    name="&AddWebsitesPage;"
-                    tooltiptext="&AddWebsitesTooltip;" />
+                    name="&Switchy.addWebsitesPage;"
+                    tooltiptext="&Switchy.addWebsitesTooltip;" />
       <richlistitem id="category-profiles"
                     class="category"
-                    name="&ProfilesPage;"
-                    tooltiptext="&ProfilesTooltip;" />
+                    name="&Switchy.profilesPage;"
+                    tooltiptext="&Switchy.profilesTooltip;" />
       <richlistitem id="category-settings"
                     class="category"
-                    name="&SettingsPage;"
-                    tooltiptext="&SettingsTooltip;" />
+                    name="&Switchy.settingsPage;"
+                    tooltiptext="&Switchy.settingsTooltip;" />
       <richlistitem id="category-about"
                     class="category"
-                    name="&AboutPage;"
-                    tooltiptext="&AboutTooltip;" />
+                    name="&Switchy.aboutPage;"
+                    tooltiptext="&Switchy.aboutTooltip;" />
     </richlistbox>
 
     <box id="view-port-container" flex="1">

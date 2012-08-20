@@ -18,8 +18,8 @@
   <toolbarpalette id="BrowserToolbarPalette">
       <toolbarbutton id="switchy-toolbarbutton"
                      insertbefore="print-button"
-                     tooltiptext="&Tooltip;"
-                     label="&Title;"
+                     tooltiptext="&Switchy.tooltip;"
+                     label="&Switchy.title;"
                      type="menu"
                      orient="horizontal">
         <panel id="switchy-panel"
@@ -30,27 +30,58 @@
                onpopupshown="SwitchyOverlay.panelOpen();" >
 
           <hbox>
-            <label value="&CurrentProfile;" />
+            <label value="&Switchy.currentProfile;" />
             <label value="" id="switchy-current-profile" />
           </hbox>
 
           <listbox id="switchy-panel-rows" row="0">
           </listbox>
 
-          <button label="&AddWebsite;"
+          <button label="&Switchy.addWebsite;"
                   oncommand="SwitchyOverlay.add();" />
 
-          <button label="&Manager;"
+          <button label="&Switchy.manager;"
                   oncommand="SwitchyOverlay.panelManager();" />
 
-          <button label="&Settings;"
+          <button label="&Switchy.settings;"
                   oncommand="SwitchyOverlay.settings();" />
 
-          <button label="&About;"
+          <button label="&Switchy.about;"
                   oncommand="SwitchyOverlay.about();" />
         </panel>
 
       </toolbarbutton>
   </toolbarpalette>
+
+  <menupopup id="menu_ToolsPopup" onpopupshowing="SwitchyOverlay.menuOpen()">
+    <menu insertafter="devToolsSeparator" label="&Switchy.title;"
+      image="chrome://switchy/skin/icon_small.png" class="menuitem-iconic menu-iconic">
+      <menupopup>
+        <menuitem id="switchy-menu-current-profile"
+                  label="...wait..."
+                  data-label="&Switchy.currentProfile;"
+                  accesskey='P' />
+
+        <menuseparator />
+        <menu label="&Switchy.changeProfile;"
+              accesskey='C'>
+          <menupopup id="switchy-menu-profiles" />
+        </menu>
+
+        <menuseparator />
+        <menuitem label="&Switchy.addWebsite;"
+                  accesskey='A'
+                  oncommand="SwitchyOverlay.add();" />
+        <menuitem label="&Switchy.manager;"
+                  accesskey='M'
+                  oncommand="SwitchyOverlay.panelManager();" />
+        <menuitem label="&Switchy.settings;"
+                  accesskey='S'
+                  oncommand="SwitchyOverlay.settings();" />
+        <menuitem label="&Switchy.about;"
+                  oncommand="SwitchyOverlay.about();" />
+      </menupopup>
+    </menu>
+  </menupopup>
 
 </overlay>
