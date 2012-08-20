@@ -20,10 +20,6 @@ window.addEventListener("load", function() {
         }, true);
     }
 
-    if (switchy.firstRun()) {
-        switchy.setPrefs('navBar', '1');
-    }
-
     SwitchyOverlay.addRemoveIcon();
 }, false);
 
