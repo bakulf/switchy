@@ -117,9 +117,11 @@ SwitchyManagerAddUrl.prototype = {
     },
 
     disableAlerts: function() {
-        var alerts = [ 'alert-url', 'alert-type', 'alert-profiles', 'alert-error' ];
-        for (var i = 0; i < alerts.length; ++i) {
-            this._browser.contentDocument.getElementById(alerts[i]).hidden = true;
+        if (this._browser) {
+            var alerts = [ 'alert-url', 'alert-type', 'alert-profiles', 'alert-error' ];
+            for (var i = 0; i < alerts.length; ++i) {
+                this._browser.contentDocument.getElementById(alerts[i]).hidden = true;
+            }
         }
     },
 
@@ -674,6 +676,7 @@ SwitchyManagerSettings.prototype = {
         this._browser.contentDocument.getElementById('fp').value = switchy.getPrefs('firefoxPath') ? switchy.getPrefs('firefoxPath') : "";
         this._browser.contentDocument.getElementById('qt').value = switchy.getPrefs('timeoutQuit');
 
+        this._browser.contentDocument.getElementById('nv').checked = (switchy.getPrefs('navBar') == '1');
 
         // alerts:
         this.disableAlert();
@@ -696,11 +699,27 @@ SwitchyManagerSettings.prototype = {
         this._browser.contentDocument.getElementById('qt').value = qt;
         switchy.setPrefs('timeoutQuit', qt);
 
+        var nv = this._browser.contentDocument.getElementById('nv').checked;
+        switchy.setPrefs('navBar', (nv ? '1' : '0'));
+
+        var win = this._window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                              .getInterface(Components.interfaces.nsIWebNavigation)
+                              .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+                              .rootTreeItem
+                              .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                              .getInterface(Components.interfaces.nsIDOMWindow);
+
+        if (win && win.SwitchyOverlay) {
+            win.SwitchyOverlay.addRemoveIcon();
+        }
+
         this.showAlert();
     },
 
     disableAlert: function() {
-        this._browser.contentDocument.getElementById('alert').hidden = true;
+        if (this._browser) {
+            this._browser.contentDocument.getElementById('alert').hidden = true;
+        }
     },
 
     showAlert: function() {

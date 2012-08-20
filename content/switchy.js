@@ -21,8 +21,10 @@ window.addEventListener("load", function() {
     }
 
     if (switchy.firstRun()) {
-        SwitchyOverlay.addIcon();
+        switchy.setPrefs('navBar', '1');
     }
+
+    SwitchyOverlay.addRemoveIcon();
 }, false);
 
 function SwitchyOverlay() {}
@@ -32,14 +34,27 @@ SwitchyOverlay.SWITCHY_ADD      = "add";
 SwitchyOverlay.SWITCHY_SETTINGS = "settings";
 SwitchyOverlay.SWITCHY_ABOUT    = "about";
 
-// Add the icon to the navBar
-SwitchyOverlay.addIcon = function() {
+// Add/Remove the icon to the navBar
+SwitchyOverlay.addRemoveIcon = function() {
     var icon   = "switchy-toolbarbutton";
     var navBar = document.getElementById("nav-bar") || document.getElementById("addon-bar");
     var obj    = document.getElementById(icon);
 
-    navBar.insertItem(icon, null, null, false);
+    if (!navBar)
+        return;
+
+    if (switchy.getPrefs('navBar') == '1') {
+        navBar.insertItem(icon, null, null, false);
+    } else {
+        var curSet = navBar.currentSet;
+        if (curSet.indexOf(icon) > 0) {
+          curSet = curSet.replace(/switchy-toolbarbutton/, '');
+        }
+        navBar.currentSet = curSet;
+    }
+
     navBar.setAttribute("currentset", navBar.currentSet);
+
     document.persist(navBar.id, "currentset");
 }
 
@@ -81,7 +96,10 @@ SwitchyOverlay.panelManager = function(page, newUrlObj) {
     if (!page)
         page = SwitchyOverlay.SWITCHY_PROFILES;
 
-    document.getElementById('switchy-panel').hidePopup();
+    // This object maybe doesn't exist (if the navBar doesn't contain the switchy's icon)
+    try {
+      document.getElementById('switchy-panel').hidePopup();
+    } catch(e) { }
 
     var URI = Services.io.newURI('chrome://switchy/content/manager.xul', null, null);
 
