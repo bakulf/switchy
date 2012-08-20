@@ -232,7 +232,7 @@ const switchy = {
 
         this._browserReadyTimer = Components.classes["@mozilla.org/timer;1"]
                                             .createInstance(Components.interfaces.nsITimer);
-        this._browserReadyTimer.initWithCallback(eventTimeout, 500, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+        this._browserReadyTimer.initWithCallback(eventTimeout, 1000 /* TODO: I hate this timer */, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
    },
 
    browserReadyTimeout: function() {
@@ -478,6 +478,12 @@ const switchy = {
 
         if (url) {
             args.push(url);
+        } else {
+            var urls = this.getUrlsForProfile(profileName);
+            for (var i = 0; i < urls.length; ++i) {
+                if (urls[i].startup())
+                    args.push(urls[i].url().spec);
+            }
         }
 
         process.run(false,args,args.length);
