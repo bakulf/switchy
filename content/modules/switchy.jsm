@@ -142,11 +142,14 @@ const switchy = {
 
     // ...component implementation...
     _initialized: false,
+    _preferences: null,
     _profileService: null,
     _ww: null,
     _db: null,
     _cache: {},
     _timer: null,
+
+    _firstRun: true,
 
     _prefs: {},
     _defaultPrefs: { 'closeCurrentProfile': 'ask' },
@@ -182,6 +185,15 @@ const switchy = {
         if (this._initialized)
             return;
         this._initialized = true;
+
+        // Preferences:
+        var prefSvc = Components.classes['@mozilla.org/preferences-service;1']
+                                .getService(Components.interfaces.nsIPrefService);
+        this._preferences = prefSvc.getBranch('extensions.switchy.');
+
+        this._firstRun = this._preferences.getBoolPref('firstRun');
+        if (this._firstRun == true)
+            this._preferences.setBoolPref('firstRun', false);
 
         // Profile Service:
         this._profileService = Components.classes["@mozilla.org/toolkit/profile-service;1"]
@@ -222,6 +234,10 @@ const switchy = {
 
         let os = Services.obs;
         os.removeObserver(this, "sessionstore-windows-restored");
+    },
+
+    firstRun: function() {
+        return this._firstRun;
     },
 
     browserReady: function() {

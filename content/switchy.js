@@ -20,7 +20,9 @@ window.addEventListener("load", function() {
         }, true);
     }
 
-    SwitchyOverlay.addRemoveIcon();
+    if (switchy.firstRun()) {
+        SwitchyOverlay.addRemoveIcon();
+    }
 }, false);
 
 function SwitchyOverlay() {}
