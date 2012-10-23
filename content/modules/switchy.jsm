@@ -442,6 +442,8 @@ const switchy = {
         var firefoxes = [ { fullpath : true,  path : this.getPathFromProc(win) },    // Just for linux
                           { fullpath : true,  path : this.getPrefs('firefoxPath') }, // User preference
                           { fullpath : false, path : 'firefox-bin' },                // mac
+                          { fullpath : false, path : 'firefox.exe' },                // windows
+                          { fullpath : false, path : 'Firefox.exe' },                // windows
                           { fullpath : false, path : 'firefox' },                    // linux
                           { fullpath : true,  path : '/usr/bin/firefox' },           // linux.. full path
                           { fullpath : true,  path : '/usr/local/bin/firefox' },     // linux.. full path
