@@ -439,8 +439,7 @@ const switchy = {
     },
 
     changeProfileWithProcess: function(win, toQuit, profileName, url) {
-        var firefoxes = [ { fullpath : true,  path : this.getPathFromProc(win) },    // Just for linux
-                          { fullpath : true,  path : this.getPrefs('firefoxPath') }, // User preference
+        var firefoxes = [ { fullpath : true,  path : this.getPrefs('firefoxPath') }, // User preference
                           { fullpath : false, path : 'firefox-bin' },                // mac
                           { fullpath : false, path : 'firefox.exe' },                // windows
                           { fullpath : false, path : 'Firefox.exe' },                // windows
@@ -519,30 +518,6 @@ const switchy = {
         }
 
         return true;
-    },
-
-    getPathFromProc: function(win) {
-        if (win.navigator.platform.toLowerCase().indexOf('linux') == -1) {
-            return null;
-        }
-
-        var proc = Components.classes["@mozilla.org/file/local;1"]
-                             .createInstance(Components.interfaces.nsILocalFile);
-        try {
-            proc.initWithPath('/proc/self/exe');
-        } catch(e) {
-            return null;
-        }
-
-        if (!proc.exists() || !proc.isSymlink() || !proc.isExecutable()) {
-            return null;
-        }
-
-        try {
-          return proc.target ? proc.target : proc.path;
-        } catch(e) {}
-
-        return proc.path;
     },
 
     askPath: function(win, value, toQuit, profileName, url) {
