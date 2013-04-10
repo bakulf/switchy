@@ -138,7 +138,7 @@ SwitchyUrl.prototype = {
 
 // Switchy Component
 const switchy = {
-    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIProfile,Components.interfaces.nsIObserver]),
+    QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsIObserver]),
 
     // ...component implementation...
     _initialized: false,
