@@ -474,11 +474,24 @@ const switchy = {
                     execFile.append(firefoxes[i].path);
                 } catch(e) {
                     execFile = null;
-                    continue;
+                }
+
+                // Windows 8 has a different CurProcD.
+                if (!execFile || !execFile.exists()) {
+                    execFile = Components.classes["@mozilla.org/file/directory_service;1"]
+                                         .getService(Components.interfaces.nsIProperties)
+                                         .get("PrfDef", Components.interfaces.nsIFile);
+                  try {
+                      execFile = execFile.parent;
+                      execFile = execFile.parent;
+                      execFile.append(firefoxes[i].path);
+                  } catch(e) {
+                      execFile = null;
+                  }
                 }
             }
 
-            if (execFile.exists() && execFile.isExecutable() && execFile.isFile())
+            if (execFile && execFile.exists() && execFile.isExecutable() && execFile.isFile())
                 break;
 
             execFile = null;
