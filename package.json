@@ -1,0 +1,9 @@
+{
+  "name": "switchy",
+  "title": "Switchy",
+  "id": "id@baku.switchy",
+  "description": "Manage your profiles easily",
+  "author": "Andrea Marchesini",
+  "license": "MPL 2.0",
+  "version": "0.9.0"
+}
