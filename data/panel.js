@@ -1,7 +1,4 @@
 let selectElm = document.getElementById("switchy-panel-select");
-selectElm.onchange = function() {
-  self.port.emit("changeProfile", selectElm.value);
-}
 
 let buttons = [ 'add', 'manager', 'settings', 'about' ];
 for (let i = 0; i < buttons.length; ++i) {
@@ -30,6 +27,9 @@ self.port.on("show", function(data) {
     let opt = document.createElement('option');
     opt.appendChild(document.createTextNode(data.profileNames[i]));
     opt.setAttribute('value', data.profileNames[i]);
+    opt.onclick = function() {
+      self.port.emit("changeProfile", selectElm.value);
+    }
     selectElm.appendChild(opt);
   }
 });
