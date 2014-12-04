@@ -8,10 +8,10 @@
     title="&Switchy.profilesTitle;"
     orient="vertical"
     autostretch="always"
-    onload="SwitchyOverlay.profileListUpdate(); sizeToContent();"
+    onload="SwitchyProfile.profileListUpdate(); sizeToContent();"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/javascript;version=1.7" src="switchy.js" />
+  <script type="application/javascript;version=1.7" src="switchy-profile.js" />
 
   <!-- Localization -->
   <stringbundleset id="switchystrbundles">

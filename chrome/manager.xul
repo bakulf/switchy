@@ -15,7 +15,6 @@
       disablechrome="true"
       disablefastfind="true">
 
-  <script type="application/javascript;version=1.7" src="switchy.js" />
   <script type="application/javascript;version=1.7" src="switchy-manager.js" />
 
   <!-- Localization -->

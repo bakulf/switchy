@@ -2,6 +2,7 @@
 
 const {classes: Cc, interfaces: Ci, utils: Cu, results: Cr} = Components;
 
+Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("chrome://switchy/content/modules/switchy-manager.jsm");
 
 // Main object for the manager (it's just a proxy for the single page objects)

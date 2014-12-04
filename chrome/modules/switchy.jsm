@@ -631,13 +631,7 @@ const switchy = {
         });
     },
 
-    checkURL: function(evnt, win) {
-        var page = evnt.originalTarget;
-
-        try {
-            var url = page.location.href;
-        } catch(e) { return; }
-
+    checkURL: function(url, win) {
         // Just http and https:
         if (url.indexOf('http://') == -1 &&
             url.indexOf('https://') == -1)
