@@ -473,6 +473,21 @@ const switchy = {
                       execFile = null;
                   }
                 }
+
+                // Mac can also be different...
+                if (!execFile || !execFile.exists()) {
+                    execFile = Components.classes["@mozilla.org/file/directory_service;1"]
+                                         .getService(Components.interfaces.nsIProperties)
+                                         .get("CurProcD", Components.interfaces.nsIFile);
+                  try {
+                      execFile = execFile.parent;
+                      execFile = execFile.parent;
+                      execFile.append("MacOS");
+                      execFile.append(firefoxes[i].path);
+                  } catch(e) {
+                      execFile = null;
+                  }
+                }
             }
 
             if (execFile && execFile.exists() && execFile.isExecutable() && execFile.isFile())
