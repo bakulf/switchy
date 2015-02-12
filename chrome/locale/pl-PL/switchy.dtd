@@ -1,0 +1,20 @@
+<!ENTITY Switchy.tooltip "Wybierz profil">
+<!ENTITY Switchy.currentProfile "Bieżący profil:">
+<!ENTITY Switchy.addWebsite "Dodaj otwartą witrynę">
+<!ENTITY Switchy.manager "Menedżer">
+<!ENTITY Switchy.settings "Ustawienia">
+<!ENTITY Switchy.about "Informacje">
+<!ENTITY Switchy.changeProfile "Uruchom profil">
+
+<!ENTITY Switchy.profilesTitle "Dostępne profile">
+<!ENTITY Switchy.close "Zamknij">
+
+<!ENTITY Switchy.titleManager "Switchy - menedżer profili">
+<!ENTITY Switchy.addWebsitesPage "Witryny">
+<!ENTITY Switchy.addWebsitesTooltip "Dodaj witrynę do profilu">
+<!ENTITY Switchy.profilesPage "Profile">
+<!ENTITY Switchy.profilesTooltip "Zarządzaj swoimi profilami">
+<!ENTITY Switchy.settingsPage "Ustawienia">
+<!ENTITY Switchy.settingsTooltip "Skonfiguruj Switchy">
+<!ENTITY Switchy.aboutPage "Informacje">
+<!ENTITY Switchy.aboutTooltip "O Switchy">
