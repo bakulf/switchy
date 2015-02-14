@@ -1,3 +1,4 @@
 content	switchy	chrome/
 skin	switchy	classic/1.0	chrome/skin/
 locale    switchy  en-US         chrome/locale/en-US/
+locale    switchy  pl-PL         chrome/locale/pl-PL/
