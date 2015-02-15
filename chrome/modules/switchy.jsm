@@ -580,17 +580,18 @@ const switchy = {
         var res = this._prompt.confirmEx(win,
                                          this._bundle.GetStringFromName('Switchy.closeCurrentProfileTitle'),
                                          this._bundle.GetStringFromName('Switchy.closeCurrentProfileAsk'),
-                                         (this._prompt.BUTTON_TITLE_YES *    this._prompt.BUTTON_POS_1 +
-                                          this._prompt.BUTTON_TITLE_CANCEL * this._prompt.BUTTON_POS_2 +
-                                          this._prompt.BUTTON_TITLE_NO *     this._prompt.BUTTON_POS_0),
+                                         (this._prompt.BUTTON_TITLE_YES *    this._prompt.BUTTON_POS_0 +
+                                          this._prompt.BUTTON_TITLE_CANCEL * this._prompt.BUTTON_POS_1 +
+                                          this._prompt.BUTTON_TITLE_NO *     this._prompt.BUTTON_POS_2 +
+                                          this._prompt.BUTTON_POS_1_DEFAULT),
                                          null, null, null, null, {});
         if (res == 1)
-            return 1;
-
-        if (res == 2)
             return -1;
 
-        return 0;
+        if (res == 2)
+            return 0;
+
+        return 1;
     },
 
     promptNeeded: function() {
